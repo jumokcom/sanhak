@@ -1,1 +1,7 @@
-import react from "react";
+declare global {
+  interface Window {
+    Kakao: any;
+  }
+}
+
+export {};
