@@ -6,6 +6,7 @@ const MainPage = () => {
   return (
     <div>
       <Header />
+      <div>내 포트폴리오</div>
     </div>
   );
 };
