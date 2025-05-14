@@ -1,4 +1,4 @@
-frontend
+cd frontend
 
 npm i
 
