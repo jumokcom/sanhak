@@ -17,12 +17,16 @@ import {
 // 더미 데이터
 const dummyProfile = {
   name: "홍길동",
-  affiliation: "한국대학교 컴퓨터공학과",
-  position: "프론트엔드 개발자",
+  age: 25,
+  gender: "남성",
   email: "hong@example.com",
   phone: "010-1234-5678",
-  github: "github.com/honggildong",
+  introduction: "안녕하세요, 저는 웹 개발자입니다.",
   image: "", // 프로필 이미지 URL
+  sns: [
+    { type: "github" as const, url: "https://github.com/honggildong" },
+    { type: "instagram" as const, url: "https://instagram.com/honggildong" }
+  ],
 };
 
 const dummyExperiences = [
