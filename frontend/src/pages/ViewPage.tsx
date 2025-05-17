@@ -16,16 +16,16 @@ import {
 
 // 더미 데이터
 const dummyProfile = {
-  name: "홍길동",
+  name: "고재우",
   age: 25,
   gender: "남성",
-  email: "hong@example.com",
-  phone: "010-1234-5678",
-  introduction: "안녕하세요, 저는 웹 개발자입니다.",
+  email: "hong@gmail.com",
+  phone: "010-9352-1321",
+  introduction: "안녕하세요 풀스택 개발자 고재우입니다.",
   image: "", // 프로필 이미지 URL
   sns: [
     { type: "github" as const, url: "https://github.com/honggildong" },
-    { type: "instagram" as const, url: "https://instagram.com/honggildong" }
+    { type: "instagram" as const, url: "https://instagram.com/honggildong" },
   ],
 };
 
@@ -92,13 +92,11 @@ const dummyProjects = [
   },
 ];
 
-const dummyAbout = `안녕하세요, 프론트엔드 개발자 홍길동입니다.
-
-사용자 중심의 웹 경험을 만들기 위해 노력하는 개발자로, React와 TypeScript를 주로 사용하여 웹 애플리케이션을 개발합니다. 새로운 기술을 배우고 적용하는 것을 즐기며, 문제 해결을 위한 창의적인 접근 방식을 선호합니다.
-
-팀 프로젝트에서는 소통과 협업을 중요시하며, 함께 성장하는 개발 문화를 만들기 위해 노력합니다. 사용자의 니즈를 이해하고 이를 기술적으로 구현하는 과정에서 큰 보람을 느낍니다.
-
-앞으로도 지속적인 학습과 도전을 통해 더 나은 개발자로 성장하고 싶습니다.`;
+const about = {
+  growth: `어릴 적부터 저는 스스로 무언가를 해보는 것을 좋아했습니다. 장난감을 단순히 가지고 노는 것을 넘어서 분해하고 다시 조립하는 데 흥미를 느꼈고, 그 과정에서 구조나 원리에 대해 자연스럽게 관심을 갖게 되었습니다. 초등학교 시절부터는 책 읽는 것을 좋아해 다양한 분야의 책을 접하면서 사고의 폭을 넓혀갔습니다. 중학교에 진학한 이후에는 친구들과의 협업을 통해 공동의 목표를 이루는 즐거움을 알게 되었고, 책임감 있게 역할을 수행하는 자세를 배울 수 있었습니다. 고등학교에서는 진로에 대한 고민을 시작하며 다양한 활동에 참여했고, 실수를 두려워하지 않고 도전하는 법을 배웠습니다. 저는 이처럼 성장 과정 속에서 형성된 호기심, 주도성, 협업 능력, 성실함을 바탕으로 앞으로도 계속 발전해 나가고자 합니다.대학교에 입학한 이후에는 더 넓은 세상 속에서 다양한 사람들과의 관계를 경험하면서 나 자신을 객관적으로 바라보는 힘도 기르게 되었습니다. 이상으로 자기소개를 마치겠습니다. 감사합니다.`,
+  personality: `저는 긍정적이고 책임감이 강한 성격입니다. 팀 프로젝트에서 소통을 중요하게 생각하며, 문제 상황에서도 침착하게 해결책을 찾으려 노력합니다.`,
+  experience: `대학 시절 동아리 프로젝트, 인턴 경험 등 다양한 실무 경험을 쌓았습니다. 특히 웹 개발 관련 프로젝트에서 주도적으로 역할을 맡아 성과를 이끌어낸 경험이 있습니다.`
+};
 
 const ViewPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -115,7 +113,6 @@ const ViewPage = () => {
   const profile = dummyProfile;
   const experiences = dummyExperiences;
   const projects = dummyProjects;
-  const about = dummyAbout;
 
   // 휠 이벤트 처리
   useEffect(() => {

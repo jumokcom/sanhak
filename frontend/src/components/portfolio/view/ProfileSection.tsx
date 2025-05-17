@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import { ContentArea, ContentContainer } from "./CommonStyles";
+import { ContentArea, ContentContainer, SectionTitle } from "./CommonStyles";
 
 // 프로필 섹션 스타일 (첫 번째 섹션)
 const ProfileSectionContainer = styled(ContentArea)`
@@ -9,11 +9,17 @@ const ProfileSectionContainer = styled(ContentArea)`
   min-height: 520px;
 `;
 
+const ProfileContentContainer = styled(ContentContainer)`
+  border: 3px solid #3182ce;
+  box-sizing: border-box;
+`;
+
 // 프로필 컨테이너
 const ProfileContainer = styled.div`
   display: flex;
   gap: 100px;
   align-items: center;
+  justify-content: center;
   max-width: 1400px;
   margin: 0 auto;
   padding: 70px 0;
@@ -75,7 +81,8 @@ const InfoItem = styled.span`
 const Introduction = styled.p`
   font-size: 1.7rem;
   color: #2d3748;
-  margin-bottom: 40px;
+  margin-top: 32px;
+  margin-bottom: 20px;
   line-height: 1.8;
   font-weight: 500;
 `;
@@ -99,6 +106,13 @@ const ContactItem = styled.div`
   font-size: 1.25rem;
   font-weight: 600;
   box-shadow: 0 2px 12px rgba(49, 130, 206, 0.06);
+`;
+
+// SNS 버튼 래퍼
+const SnsButtonWrapper = styled.div`
+  display: flex;
+  gap: 28px;
+  margin-top: 18px;
 `;
 
 interface SnsItem {
@@ -162,7 +176,8 @@ const SnsIcon = ({ type }: { type: string }) => {
 const ProfileSection: React.FC<ProfileSectionProps> = ({ profile }) => {
   return (
     <ProfileSectionContainer>
-      <ContentContainer>
+      <ProfileContentContainer>
+        <SectionTitle>프로필</SectionTitle>
         <ProfileContainer>
           <ProfileImage>
             {profile.image ? (
@@ -194,17 +209,21 @@ const ProfileSection: React.FC<ProfileSectionProps> = ({ profile }) => {
                 </svg>
                 {profile.phone}
               </ContactItem>
-              {profile.sns && profile.sns.map((sns, idx) => (
-                <SnsButton key={sns.type + idx} href={sns.url} target="_blank" rel="noopener noreferrer">
-                  <SnsIcon type={sns.type} />
-                  {sns.type === 'github' && 'GitHub'}
-                  {sns.type === 'instagram' && 'Instagram'}
-                </SnsButton>
-              ))}
             </ContactInfo>
+            {profile.sns && profile.sns.length > 0 && (
+              <SnsButtonWrapper>
+                {profile.sns.map((sns, idx) => (
+                  <SnsButton key={sns.type + idx} href={sns.url} target="_blank" rel="noopener noreferrer">
+                    <SnsIcon type={sns.type} />
+                    {sns.type === 'github' && 'GitHub'}
+                    {sns.type === 'instagram' && 'Instagram'}
+                  </SnsButton>
+                ))}
+              </SnsButtonWrapper>
+            )}
           </ProfileInfo>
         </ProfileContainer>
-      </ContentContainer>
+      </ProfileContentContainer>
     </ProfileSectionContainer>
   );
 };

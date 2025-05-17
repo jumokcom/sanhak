@@ -77,6 +77,11 @@ const Tag = styled.span`
   font-weight: 500;
 `;
 
+const ProjectContentContainer = styled(ContentContainer)`
+  border: 3px solid #3182ce;
+  box-sizing: border-box;
+`;
+
 interface Project {
   id: number;
   title: string;
@@ -93,7 +98,7 @@ interface ProjectSectionProps {
 const ProjectSection: React.FC<ProjectSectionProps> = ({ projects }) => {
   return (
     <ContentArea>
-      <ContentContainer>
+      <ProjectContentContainer>
         <SectionTitle>프로젝트</SectionTitle>
         <ProjectGrid>
           {projects.map((project) => (
@@ -120,7 +125,7 @@ const ProjectSection: React.FC<ProjectSectionProps> = ({ projects }) => {
             </ProjectCard>
           ))}
         </ProjectGrid>
-      </ContentContainer>
+      </ProjectContentContainer>
     </ContentArea>
   );
 };

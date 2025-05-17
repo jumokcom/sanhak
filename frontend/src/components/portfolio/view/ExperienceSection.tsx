@@ -6,7 +6,7 @@ import { ContentArea, ContentContainer, SectionTitle } from "./CommonStyles";
 const TimelineContainer = styled.div`
   padding: 20px 0;
   position: relative;
-  
+
   &:before {
     content: "";
     position: absolute;
@@ -23,7 +23,7 @@ const TimelineItem = styled.div`
   margin-bottom: 30px;
   padding-left: 60px;
   position: relative;
-  
+
   &:before {
     content: "";
     position: absolute;
@@ -36,7 +36,7 @@ const TimelineItem = styled.div`
     border: 3px solid white;
     box-shadow: 0 0 0 3px #3182ce;
   }
-  
+
   &:last-child {
     margin-bottom: 0;
   }
@@ -64,6 +64,11 @@ const Description = styled.div`
   line-height: 1.5;
 `;
 
+const ExperienceContentContainer = styled(ContentContainer)`
+  border: 3px solid #3182ce;
+  box-sizing: border-box;
+`;
+
 interface Experience {
   id: number;
   period: string;
@@ -76,10 +81,12 @@ interface ExperienceSectionProps {
   experiences: Experience[];
 }
 
-const ExperienceSection: React.FC<ExperienceSectionProps> = ({ experiences }) => {
+const ExperienceSection: React.FC<ExperienceSectionProps> = ({
+  experiences,
+}) => {
   return (
     <ContentArea>
-      <ContentContainer>
+      <ExperienceContentContainer>
         <SectionTitle>이력</SectionTitle>
         <TimelineContainer>
           {experiences.map((exp) => (
@@ -91,7 +98,7 @@ const ExperienceSection: React.FC<ExperienceSectionProps> = ({ experiences }) =>
             </TimelineItem>
           ))}
         </TimelineContainer>
-      </ContentContainer>
+      </ExperienceContentContainer>
     </ContentArea>
   );
 };
