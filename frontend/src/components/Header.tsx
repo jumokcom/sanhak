@@ -4,24 +4,25 @@ import KakaoLogin from "react-kakao-login";
 
 // 스타일 컴포넌트들
 const HeaderContainer = styled.header`
-  height: 160px;
-  background-color: #1a202c;
+  height: 140px;
+  background-color: #3182ce;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  padding: 0 70px;
+  position: relative;
+  z-index: 10;
 `;
 
 const Title = styled.h1`
   color: white;
-  font-size: 3rem;
+  font-size: 2.5rem;
   font-weight: bold;
-  margin-left: 200px;
 `;
 
 const RightContainer = styled.div`
   display: flex;
   gap: 40px;
-  margin-right: 200px;
   align-items: center;
 `;
 
