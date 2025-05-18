@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
 
 const Container = styled.div`
@@ -57,6 +57,22 @@ const TextArea = styled.textarea`
     outline: none;
     border-color: #3182ce;
   }
+  
+  &.limit-warning {
+    border-color: #e53e3e;
+  }
+`;
+
+const CharacterCount = styled.div`
+  display: flex;
+  justify-content: flex-end;
+  font-size: 0.875rem;
+  margin-top: 5px;
+  
+  &.limit-warning {
+    color: #e53e3e;
+    font-weight: 600;
+  }
 `;
 
 const SaveButton = styled.button`
@@ -83,7 +99,23 @@ interface AboutEditSectionProps {
   // 여기에 필요한 props 정의
 }
 
+const MAX_CHAR_LIMIT = 500;
+
 const AboutEditSection: React.FC<AboutEditSectionProps> = () => {
+  const [growth, setGrowth] = useState('');
+  const [personality, setPersonality] = useState('');
+  const [experience, setExperience] = useState('');
+  
+  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>, setter: React.Dispatch<React.SetStateAction<string>>) => {
+    const value = e.target.value;
+    if (value.length <= MAX_CHAR_LIMIT) {
+      setter(value);
+    }
+  };
+  
+  const getCharacterCountClass = (text: string) => {
+    return text.length > MAX_CHAR_LIMIT * 0.9 ? 'limit-warning' : '';
+  };
   return (
     <Container>
       <Title>자기소개</Title>
@@ -94,7 +126,14 @@ const AboutEditSection: React.FC<AboutEditSectionProps> = () => {
           id="growth"
           name="growth"
           placeholder="자신의 성장 과정에 대해 서술해주세요."
+          value={growth}
+          onChange={(e) => handleChange(e, setGrowth)}
+          className={getCharacterCountClass(growth)}
+          maxLength={MAX_CHAR_LIMIT}
         />
+        <CharacterCount className={getCharacterCountClass(growth)}>
+          {growth.length}/{MAX_CHAR_LIMIT}자
+        </CharacterCount>
       </TextAreaGroup>
       
       <TextAreaGroup>
@@ -103,7 +142,14 @@ const AboutEditSection: React.FC<AboutEditSectionProps> = () => {
           id="personality"
           name="personality"
           placeholder="자신의 성격과 장단점에 대해 서술해주세요."
+          value={personality}
+          onChange={(e) => handleChange(e, setPersonality)}
+          className={getCharacterCountClass(personality)}
+          maxLength={MAX_CHAR_LIMIT}
         />
+        <CharacterCount className={getCharacterCountClass(personality)}>
+          {personality.length}/{MAX_CHAR_LIMIT}자
+        </CharacterCount>
       </TextAreaGroup>
       
       <TextAreaGroup>
@@ -112,7 +158,14 @@ const AboutEditSection: React.FC<AboutEditSectionProps> = () => {
           id="experience"
           name="experience"
           placeholder="자신의 주요 경험에 대해 서술해주세요."
+          value={experience}
+          onChange={(e) => handleChange(e, setExperience)}
+          className={getCharacterCountClass(experience)}
+          maxLength={MAX_CHAR_LIMIT}
         />
+        <CharacterCount className={getCharacterCountClass(experience)}>
+          {experience.length}/{MAX_CHAR_LIMIT}자
+        </CharacterCount>
       </TextAreaGroup>
     </Container>
   );
