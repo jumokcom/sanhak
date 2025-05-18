@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import PageLayout from "../components/PageLayout";
@@ -19,7 +19,7 @@ const dummyProfile = {
   name: "고재우",
   age: 25,
   gender: "남성",
-  email: "hong@gmail.com",
+  email: "jumokcom2001@gmail.com",
   phone: "010-9352-1321",
   introduction: "안녕하세요 풀스택 개발자 고재우입니다.",
   image: "", // 프로필 이미지 URL
@@ -105,7 +105,8 @@ const dummyProjects = [
     period: "2023.01 - 2023.03",
     role: "프론트엔드 개발",
     skills: ["React", "TypeScript", "Styled Components", "Redux"],
-    description: "개발자들의 포트폴리오를 효과적으로 관리하고 공유할 수 있는 웹 애플리케이션입니다.\n\n주요 기능:\n- 포트폴리오 템플릿 제공\n- 프로젝트 및 경력 관리\n- 반응형 디자인 구현\n- 실시간 미리보기\n\n프로젝트 기여도: 100%",
+    description:
+      "개발자들의 포트폴리오를 효과적으로 관리하고 공유할 수 있는 웹 애플리케이션입니다.\n\n주요 기능:\n- 포트폴리오 템플릿 제공\n- 프로젝트 및 경력 관리\n- 반응형 디자인 구현\n- 실시간 미리보기\n\n프로젝트 기여도: 100%",
     serviceUrl: "https://portfolio-system.example.com",
     githubUrl: "https://github.com/username/portfolio-system",
     image: "",
@@ -117,7 +118,8 @@ const dummyProjects = [
     period: "2022.08 - 2022.12",
     role: "프론트엔드 개발 (팀장)",
     skills: ["React", "Redux", "Bootstrap", "Node.js", "MongoDB"],
-    description: "온라인 쇼핑몰의 프론트엔드 개발을 담당했습니다.\n\n주요 기능:\n- 사용자 인증 및 권한 관리\n- 상품 목록 및 상세 페이지\n- 장바구니 및 결제 시스템\n- 실시간 재고 관리\n\n프로젝트 기여도: 60%",
+    description:
+      "온라인 쇼핑몰의 프론트엔드 개발을 담당했습니다.\n\n주요 기능:\n- 사용자 인증 및 권한 관리\n- 상품 목록 및 상세 페이지\n- 장바구니 및 결제 시스템\n- 실시간 재고 관리\n\n프로젝트 기여도: 60%",
     serviceUrl: "https://shopping-mall.example.com",
     githubUrl: "https://github.com/username/shopping-mall",
     image: "",
@@ -129,7 +131,8 @@ const dummyProjects = [
     period: "2022.03 - 2022.06",
     role: "풀스택 개발",
     skills: ["React Native", "Firebase", "Redux", "Node.js"],
-    description: "모바일 기반 일정 관리 애플리케이션을 개발했습니다.\n\n주요 기능:\n- 캘린더 및 일정 관리\n- 알림 시스템\n- 데이터 동기화\n- 오프라인 지원\n\n프로젝트 기여도: 100%",
+    description:
+      "모바일 기반 일정 관리 애플리케이션을 개발했습니다.\n\n주요 기능:\n- 캘린더 및 일정 관리\n- 알림 시스템\n- 데이터 동기화\n- 오프라인 지원\n\n프로젝트 기여도: 100%",
     serviceUrl: "https://schedule-app.example.com",
     githubUrl: "https://github.com/username/schedule-app",
     image: "",
@@ -141,7 +144,8 @@ const dummyProjects = [
     period: "2021.10 - 2021.12",
     role: "프론트엔드 개발",
     skills: ["JavaScript", "Chart.js", "OpenWeatherMap API", "CSS3"],
-    description: "위치 기반 날씨 정보를 제공하는 대시보드를 개발했습니다.\n\n주요 기능:\n- 실시간 날씨 정보 표시\n- 5일 예보 제공\n- 날씨 데이터 시각화\n- 위치 기반 서비스\n\n프로젝트 기여도: 80%",
+    description:
+      "위치 기반 날씨 정보를 제공하는 대시보드를 개발했습니다.\n\n주요 기능:\n- 실시간 날씨 정보 표시\n- 5일 예보 제공\n- 날씨 데이터 시각화\n- 위치 기반 서비스\n\n프로젝트 기여도: 80%",
     serviceUrl: "https://weather-dashboard.example.com",
     githubUrl: "https://github.com/username/weather-dashboard",
     image: "",
@@ -157,6 +161,7 @@ const about = {
 
 const ViewPage = () => {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState(0);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const sectionRefs = [
@@ -254,6 +259,11 @@ const ViewPage = () => {
       }
     };
   }, []);
+
+  // 뒤로가기 버튼 클릭 핸들러
+  const handleBackClick = () => {
+    navigate("/");
+  };
 
   return (
     <PageLayout>

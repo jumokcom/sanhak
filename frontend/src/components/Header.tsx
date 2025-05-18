@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import styled from "styled-components";
 import KakaoLogin from "react-kakao-login";
+import { useNavigate, useLocation } from "react-router-dom";
 
 // 스타일 컴포넌트들
 const HeaderContainer = styled.header`
@@ -14,10 +15,47 @@ const HeaderContainer = styled.header`
   z-index: 10;
 `;
 
+const BackButton = styled.button`
+  position: absolute;
+  top: 50%;
+  left: 70px;
+  transform: translateY(-50%);
+  background-color: white;
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #3182ce;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+
+  &:hover {
+    transform: translateY(-50%) scale(1.1);
+  }
+`;
+
+const TitleContainer = styled.div`
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;
+
 const Title = styled.h1`
   color: white;
   font-size: 2.5rem;
   font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  
+  &:hover {
+    transform: scale(1.02);
+    text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+  }
 `;
 
 const RightContainer = styled.div`
@@ -84,6 +122,20 @@ const KakaoLogo = () => (
 );
 
 const Header = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+  
+  // 현재 페이지가 메인 페이지가 아닐 때만 뒤로가기 버튼 표시
+  const showBackButton = location.pathname !== "/";
+  // 뒤로가기 버튼 클릭 핸들러
+  const handleBackClick = () => {
+    navigate('/');
+  };
+
+  // 타이틀 클릭 시 메인 페이지로 이동
+  const handleTitleClick = () => {
+    navigate("/");
+  };
   const [isLogin, setIsLogin] = useState<boolean>(false);
   const [userName, setUserName] = useState<string>("");
   const [profileImage, setProfileImage] = useState<string>("");
@@ -199,7 +251,17 @@ const Header = () => {
 
   return (
     <HeaderContainer>
-      <Title>포트폴리오 관리</Title>
+      {showBackButton && (
+        <BackButton onClick={handleBackClick}>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M19 12H5" stroke="#3182ce" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M12 19L5 12L12 5" stroke="#3182ce" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </BackButton>
+      )}
+      <TitleContainer>
+        <Title onClick={handleTitleClick}>포트폴리오 관리</Title>
+      </TitleContainer>
       <RightContainer>
         {isLogin ? (
           <>

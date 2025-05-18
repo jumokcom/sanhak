@@ -58,10 +58,43 @@ export const Dot = styled.div<{ active: boolean }>`
   background-color: ${(props) => (props.active ? "#3182ce" : "#cbd5e0")};
   cursor: pointer;
   transition: all 0.3s ease;
-  
+
   &:hover {
     background-color: ${(props) => (props.active ? "#3182ce" : "#a0aec0")};
     transform: scale(1.2);
+  }
+`;
+
+// 뒤로가기 버튼
+export const BackButton = styled.button`
+  position: absolute;
+  top: 50px;
+  left: 70px;
+  background-color: white;
+  border: none;
+  border-radius: 50%;
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #3182ce;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+  transition: all 0.2s ease;
+
+  &:hover {
+    transform: scale(1.1);
+  }
+
+  svg {
+    transition: transform 0.2s ease;
+    width: 30px;
+    height: 30px;
+  }
+
+  &:hover svg {
+    transform: translateX(-4px);
   }
 `;
 
@@ -73,7 +106,7 @@ export const SectionTitle = styled.h3`
   position: relative;
   display: inline-block;
   padding-bottom: 8px;
-  
+
   &:after {
     content: "";
     position: absolute;
