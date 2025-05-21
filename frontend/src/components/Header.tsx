@@ -51,7 +51,7 @@ const Title = styled.h1`
   font-weight: bold;
   cursor: pointer;
   transition: all 0.2s ease-in-out;
-  
+
   &:hover {
     transform: scale(1.02);
     text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
@@ -122,7 +122,7 @@ const KakaoLogo = () => (
 );
 
 // API 엔드포인트
-const API_BASE_URL = 'http://localhost:3001/api'; // 환경변수로 대체 가능
+const API_BASE_URL = "https://sanhak-backend.onrender.com/api";
 
 // 백엔드 API 함수들
 const api = {
@@ -130,46 +130,46 @@ const api = {
   kakaoLogin: async (accessToken: string) => {
     try {
       const response = await fetch(`${API_BASE_URL}/auth/kakao/token`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ accessToken }),
       });
-      
+
       if (!response.ok) {
-        throw new Error('카카오 로그인 처리 실패');
+        throw new Error("카카오 로그인 처리 실패");
       }
-      
+
       return await response.json();
     } catch (error) {
-      console.error('API 오류:', error);
+      console.error("API 오류:", error);
       throw error;
     }
   },
-  
+
   // 사용자 프로필 조회
   getUserProfile: async () => {
     try {
-      const token = localStorage.getItem('jwt_token');
-      
+      const token = localStorage.getItem("jwt_token");
+
       if (!token) {
-        throw new Error('인증 토큰이 없습니다');
+        throw new Error("인증 토큰이 없습니다");
       }
-      
+
       const response = await fetch(`${API_BASE_URL}/users/profile`, {
         headers: {
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
       });
-      
+
       if (!response.ok) {
-        throw new Error('프로필 조회 실패');
+        throw new Error("프로필 조회 실패");
       }
-      
+
       return await response.json();
     } catch (error) {
-      console.error('API 오류:', error);
+      console.error("API 오류:", error);
       throw error;
     }
   },
@@ -178,12 +178,12 @@ const api = {
 const Header = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  
+
   // 현재 페이지가 메인 페이지가 아닐 때만 뒤로가기 버튼 표시
   const showBackButton = location.pathname !== "/";
   // 뒤로가기 버튼 클릭 핸들러
   const handleBackClick = () => {
-    navigate('/');
+    navigate("/");
   };
 
   // 타이틀 클릭 시 메인 페이지로 이동
@@ -202,40 +202,40 @@ const Header = () => {
     try {
       // 백엔드 서버로 카카오 액세스 토큰 전송
       const authData = await api.kakaoLogin(accessToken);
-      
+
       // JWT 토큰 저장
-      localStorage.setItem('jwt_token', authData.access_token);
-      
+      localStorage.setItem("jwt_token", authData.access_token);
+
       // 사용자 정보 설정 (선택적으로 백엔드에서 받아와도 됨)
       fetchUserInfo();
-      
+
       return true;
     } catch (error) {
-      console.error('백엔드 로그인 처리 실패:', error);
+      console.error("백엔드 로그인 처리 실패:", error);
       return false;
     }
   }, []);
 
-  // 사용자 정보 요청 함수 
+  // 사용자 정보 요청 함수
   const fetchUserInfo = useCallback(async () => {
     // 1. 먼저 백엔드 서버에서 사용자 정보 조회 시도
     try {
-      const jwtToken = localStorage.getItem('jwt_token');
-      
+      const jwtToken = localStorage.getItem("jwt_token");
+
       if (jwtToken) {
         // 백엔드에서 사용자 정보 가져오기
         const userProfile = await api.getUserProfile();
-        
-        setUserName(userProfile.name || '사용자');
-        setProfileImage(userProfile.profileImage || '');
+
+        setUserName(userProfile.name || "사용자");
+        setProfileImage(userProfile.profileImage || "");
         setIsLogin(true);
         return;
       }
     } catch (error) {
-      console.error('백엔드 사용자 정보 조회 실패:', error);
+      console.error("백엔드 사용자 정보 조회 실패:", error);
       // 백엔드 조회 실패 시 카카오 API로 대체
     }
-    
+
     // 2. 백엔드 조회 실패 또는 토큰이 없는 경우 카카오 API 사용
     if (!window.Kakao?.API) return;
 
@@ -259,10 +259,10 @@ const Header = () => {
         setUserName(nickname);
         setProfileImage(profileImg);
         setIsLogin(true);
-        
+
         // 카카오 토큰이 있지만 백엔드 토큰이 없는 경우,
         // 백엔드 로그인 처리 시도
-        if (!localStorage.getItem('jwt_token')) {
+        if (!localStorage.getItem("jwt_token")) {
           const token = window.Kakao.Auth.getAccessToken();
           if (token) {
             await loginWithBackend(token);
@@ -286,12 +286,12 @@ const Header = () => {
       if (data.response?.access_token) {
         // 카카오 SDK에 토큰 설정
         window.Kakao.Auth.setAccessToken(data.response.access_token);
-        
+
         // 백엔드 서버로 로그인 요청
         const success = await loginWithBackend(data.response.access_token);
-        
+
         if (success) {
-          console.log('백엔드 로그인 성공');
+          console.log("백엔드 로그인 성공");
           fetchUserInfo(); // 사용자 정보 가져오기
         } else {
           // 백엔드 로그인 실패 시 카카오 정보만 사용
@@ -314,8 +314,8 @@ const Header = () => {
   const handleLogout = () => {
     try {
       // 백엔드 JWT 토큰 제거
-      localStorage.removeItem('jwt_token');
-      
+      localStorage.removeItem("jwt_token");
+
       // 카카오 로그아웃
       if (window.Kakao?.Auth?.getAccessToken()) {
         window.Kakao.Auth.logout(() => {
@@ -352,19 +352,19 @@ const Header = () => {
       // 로그인 상태 확인
       const checkLoginStatus = async () => {
         // JWT 토큰 체크
-        const jwtToken = localStorage.getItem('jwt_token');
-        
+        const jwtToken = localStorage.getItem("jwt_token");
+
         if (jwtToken && isComponentMounted) {
           setIsLogin(true);
           fetchUserInfo();
-        } 
+        }
         // JWT 토큰이 없을 때 카카오 토큰 체크
         else if (window.Kakao?.Auth?.getAccessToken() && isComponentMounted) {
           setIsLogin(true);
           fetchUserInfo();
         }
       };
-      
+
       checkLoginStatus();
     } catch (error) {
       console.error("SDK 초기화 중 오류:", error);
@@ -380,9 +380,27 @@ const Header = () => {
     <HeaderContainer>
       {showBackButton && (
         <BackButton onClick={handleBackClick}>
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M19 12H5" stroke="#3182ce" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-            <path d="M12 19L5 12L12 5" stroke="#3182ce" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M19 12H5"
+              stroke="#3182ce"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+            <path
+              d="M12 19L5 12L12 5"
+              stroke="#3182ce"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
           </svg>
         </BackButton>
       )}
