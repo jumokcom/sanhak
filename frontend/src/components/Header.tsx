@@ -3,7 +3,7 @@ import styled from "styled-components";
 import KakaoLogin from "react-kakao-login";
 import { useNavigate, useLocation } from "react-router-dom";
 
-// 스타일 컴포넌트들
+// 스타일 컴포넌트들 (기존 코드 그대로 유지)
 const HeaderContainer = styled.header`
   height: 140px;
   background-color: #3182ce;
@@ -121,6 +121,60 @@ const KakaoLogo = () => (
   </svg>
 );
 
+// API 엔드포인트
+const API_BASE_URL = 'http://localhost:3001/api'; // 환경변수로 대체 가능
+
+// 백엔드 API 함수들
+const api = {
+  // 카카오 액세스 토큰으로 로그인/회원가입
+  kakaoLogin: async (accessToken: string) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/auth/kakao/token`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ accessToken }),
+      });
+      
+      if (!response.ok) {
+        throw new Error('카카오 로그인 처리 실패');
+      }
+      
+      return await response.json();
+    } catch (error) {
+      console.error('API 오류:', error);
+      throw error;
+    }
+  },
+  
+  // 사용자 프로필 조회
+  getUserProfile: async () => {
+    try {
+      const token = localStorage.getItem('jwt_token');
+      
+      if (!token) {
+        throw new Error('인증 토큰이 없습니다');
+      }
+      
+      const response = await fetch(`${API_BASE_URL}/users/profile`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+      
+      if (!response.ok) {
+        throw new Error('프로필 조회 실패');
+      }
+      
+      return await response.json();
+    } catch (error) {
+      console.error('API 오류:', error);
+      throw error;
+    }
+  },
+};
+
 const Header = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -143,14 +197,52 @@ const Header = () => {
   // 카카오 JavaScript SDK 키
   const KAKAO_JS_KEY = "bb160f901f05e41f7d00545da89d8b06";
 
-  // 사용자 정보 요청 함수 (중복 제거)
-  const fetchUserInfo = useCallback(() => {
+  // 백엔드 서버로 로그인 처리 및 JWT 토큰 저장
+  const loginWithBackend = useCallback(async (accessToken: string) => {
+    try {
+      // 백엔드 서버로 카카오 액세스 토큰 전송
+      const authData = await api.kakaoLogin(accessToken);
+      
+      // JWT 토큰 저장
+      localStorage.setItem('jwt_token', authData.access_token);
+      
+      // 사용자 정보 설정 (선택적으로 백엔드에서 받아와도 됨)
+      fetchUserInfo();
+      
+      return true;
+    } catch (error) {
+      console.error('백엔드 로그인 처리 실패:', error);
+      return false;
+    }
+  }, []);
+
+  // 사용자 정보 요청 함수 
+  const fetchUserInfo = useCallback(async () => {
+    // 1. 먼저 백엔드 서버에서 사용자 정보 조회 시도
+    try {
+      const jwtToken = localStorage.getItem('jwt_token');
+      
+      if (jwtToken) {
+        // 백엔드에서 사용자 정보 가져오기
+        const userProfile = await api.getUserProfile();
+        
+        setUserName(userProfile.name || '사용자');
+        setProfileImage(userProfile.profileImage || '');
+        setIsLogin(true);
+        return;
+      }
+    } catch (error) {
+      console.error('백엔드 사용자 정보 조회 실패:', error);
+      // 백엔드 조회 실패 시 카카오 API로 대체
+    }
+    
+    // 2. 백엔드 조회 실패 또는 토큰이 없는 경우 카카오 API 사용
     if (!window.Kakao?.API) return;
 
     window.Kakao.API.request({
       url: "/v2/user/me",
-      success: (res: any) => {
-        console.log("사용자 정보:", res);
+      success: async (res: any) => {
+        console.log("카카오 사용자 정보:", res);
 
         // 닉네임 설정 (여러 경로에서 찾기)
         const nickname =
@@ -167,29 +259,48 @@ const Header = () => {
         setUserName(nickname);
         setProfileImage(profileImg);
         setIsLogin(true);
+        
+        // 카카오 토큰이 있지만 백엔드 토큰이 없는 경우,
+        // 백엔드 로그인 처리 시도
+        if (!localStorage.getItem('jwt_token')) {
+          const token = window.Kakao.Auth.getAccessToken();
+          if (token) {
+            await loginWithBackend(token);
+          }
+        }
       },
       fail: (error: any) => {
         console.error("사용자 정보 요청 실패:", error);
-        setUserName("카카오 사용자");
+        setUserName("사용자");
         setIsLogin(true);
       },
     });
-  }, []);
+  }, [loginWithBackend]);
 
   // 카카오 로그인 성공 시 처리
-  const handleKakaoSuccess = (data: any) => {
+  const handleKakaoSuccess = async (data: any) => {
     console.log("카카오 로그인 성공");
 
     try {
       // 액세스 토큰 설정
       if (data.response?.access_token) {
+        // 카카오 SDK에 토큰 설정
         window.Kakao.Auth.setAccessToken(data.response.access_token);
-        // 사용자 정보 요청
-        fetchUserInfo();
+        
+        // 백엔드 서버로 로그인 요청
+        const success = await loginWithBackend(data.response.access_token);
+        
+        if (success) {
+          console.log('백엔드 로그인 성공');
+          fetchUserInfo(); // 사용자 정보 가져오기
+        } else {
+          // 백엔드 로그인 실패 시 카카오 정보만 사용
+          fetchUserInfo();
+        }
       }
     } catch (error) {
       console.error("로그인 처리 중 오류:", error);
-      setUserName("카카오 사용자");
+      setUserName("사용자");
       setIsLogin(true);
     }
   };
@@ -202,6 +313,10 @@ const Header = () => {
   // 로그아웃 처리
   const handleLogout = () => {
     try {
+      // 백엔드 JWT 토큰 제거
+      localStorage.removeItem('jwt_token');
+      
+      // 카카오 로그아웃
       if (window.Kakao?.Auth?.getAccessToken()) {
         window.Kakao.Auth.logout(() => {
           console.log("카카오 로그아웃 완료");
@@ -216,7 +331,7 @@ const Header = () => {
     }
   };
 
-  // 사용자 상태 초기화 (중복 제거)
+  // 사용자 상태 초기화
   const resetUserState = () => {
     setIsLogin(false);
     setUserName("");
@@ -234,11 +349,23 @@ const Header = () => {
         console.log("카카오 SDK 초기화 완료");
       }
 
-      // 이미 로그인되어 있는지 확인
-      if (window.Kakao?.Auth?.getAccessToken() && isComponentMounted) {
-        setIsLogin(true);
-        fetchUserInfo();
-      }
+      // 로그인 상태 확인
+      const checkLoginStatus = async () => {
+        // JWT 토큰 체크
+        const jwtToken = localStorage.getItem('jwt_token');
+        
+        if (jwtToken && isComponentMounted) {
+          setIsLogin(true);
+          fetchUserInfo();
+        } 
+        // JWT 토큰이 없을 때 카카오 토큰 체크
+        else if (window.Kakao?.Auth?.getAccessToken() && isComponentMounted) {
+          setIsLogin(true);
+          fetchUserInfo();
+        }
+      };
+      
+      checkLoginStatus();
     } catch (error) {
       console.error("SDK 초기화 중 오류:", error);
     }
