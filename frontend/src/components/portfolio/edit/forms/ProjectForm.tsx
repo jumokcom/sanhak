@@ -275,9 +275,6 @@ const ProjectForm: React.FC<ProjectFormProps> = ({ onSave, onCancel }) => {
           >
             <option value="개인">개인 프로젝트</option>
             <option value="팀">팀 프로젝트</option>
-            <option value="기업">기업 프로젝트</option>
-            <option value="학교">학교 프로젝트</option>
-            <option value="기타">기타</option>
           </Select>
         </FormGroup>
         
