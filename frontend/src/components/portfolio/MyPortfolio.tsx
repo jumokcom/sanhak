@@ -143,7 +143,16 @@ const MyPortfolio: React.FC<MyPortfolioProps> = ({ portfolios }) => {
     const checkLoginStatus = () => {
       const jwtToken = localStorage.getItem('jwt_token');
       const kakaoToken = window.Kakao?.Auth?.getAccessToken();
-      setIsLoggedIn(!!(jwtToken || kakaoToken));
+      
+      console.log('JWT Token:', jwtToken);
+      console.log('Kakao Token:', kakaoToken);
+      console.log('Portfolios length:', portfolios.length);
+      console.log('Portfolios data:', portfolios);
+      
+      const loggedIn = !!(jwtToken || kakaoToken);
+      console.log('Is logged in:', loggedIn);
+      
+      setIsLoggedIn(loggedIn);
     };
     
     checkLoginStatus();
@@ -152,7 +161,7 @@ const MyPortfolio: React.FC<MyPortfolioProps> = ({ portfolios }) => {
     const interval = setInterval(checkLoginStatus, 1000);
     
     return () => clearInterval(interval);
-  }, []);
+  }, [portfolios]);
 
   // 포트폴리오 생성 버튼 클릭
   const handleCreatePortfolio = () => {
@@ -205,30 +214,37 @@ const MyPortfolio: React.FC<MyPortfolioProps> = ({ portfolios }) => {
         <LoginPromptContainer>
           <LoginMessage>내 포트폴리오를 관리하려면 로그인을 해주세요</LoginMessage>
         </LoginPromptContainer>
-      ) : (
+      ) : portfolios.length === 0 ? (
+        // 로그인되었지만 포트폴리오가 없을 때: 생성 버튼만
         <SimpleContainer>
-          {myPortfolio ? (
-            // 포트폴리오가 있을 때: 수정 버튼 + 포트폴리오 카드
-            <PortfolioLayout>
-              <EditButton onClick={handleEditPortfolio}>
-                포트폴리오 수정
-              </EditButton>
-              <CardWrapper>
-                <PortfolioCard
-                  id={myPortfolio.id}
-                  title={myPortfolio.title}
-                  description={myPortfolio.description}
-                  onDelete={handleDeletePortfolio}
-                  editable={true}
-                />
-              </CardWrapper>
-            </PortfolioLayout>
-          ) : (
-            // 포트폴리오가 없을 때: 생성 버튼만
+          <CardWrapper>
+            <CreatePortfolioCard />
+          </CardWrapper>
+        </SimpleContainer>
+      ) : myPortfolio ? (
+        // 로그인되고 포트폴리오가 있을 때: 수정 버튼 + 포트폴리오 카드
+        <SimpleContainer>
+          <PortfolioLayout>
+            <EditButton onClick={handleEditPortfolio}>
+              포트폴리오 수정
+            </EditButton>
             <CardWrapper>
-              <CreatePortfolioCard />
+              <PortfolioCard
+                id={myPortfolio.id}
+                title={myPortfolio.title}
+                description={myPortfolio.description}
+                onDelete={handleDeletePortfolio}
+                editable={true}
+              />
             </CardWrapper>
-          )}
+          </PortfolioLayout>
+        </SimpleContainer>
+      ) : (
+        // 로그인되었지만 포트폴리오 데이터가 없는 경우
+        <SimpleContainer>
+          <CardWrapper>
+            <CreatePortfolioCard />
+          </CardWrapper>
         </SimpleContainer>
       )}
     </SectionContainer>

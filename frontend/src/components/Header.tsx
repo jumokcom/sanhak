@@ -122,7 +122,11 @@ const KakaoLogo = () => (
 );
 
 // API 엔드포인트
-const API_BASE_URL = "http://localhost:3001/api";
+const API_BASE_URL = process.env.NODE_ENV === 'production' 
+  ? process.env.REACT_APP_API_URL || 'https://sanhak-backend.onrender.com/api'
+  : 'http://localhost:3001/api';
+
+console.log('헤더 API_BASE_URL:', API_BASE_URL);
 
 // 백엔드 API 함수들
 const api = {

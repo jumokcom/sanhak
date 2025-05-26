@@ -89,28 +89,36 @@ const MainPage = () => {
     try {
       setLoading(true);
       setError(null);
+      
+      console.log('포트폴리오 로드 시작...');
 
       // 내 포트폴리오와 전체 포트폴리오를 동시에 로드
       const [myData, allData] = await Promise.all([
-        portfolioApi.getMyPortfolios().catch(() => []), // 로그인 안 되어 있으면 빈 배열
+        portfolioApi.getMyPortfolios().catch((error) => {
+          console.log('내 포트폴리오 로드 실패 (로그인 안된 상태일 수 있음):', error);
+          return [];
+        }),
         portfolioApi.getAllPortfolios()
       ]);
 
-      console.log('내 포트폴리오:', myData);
-      console.log('전체 포트폴리오:', allData);
+      console.log('내 포트폴리오 원본 데이터:', myData);
+      console.log('전체 포트폴리오 원본 데이터:', allData);
 
       // 데이터 형식 변환 (컴포넌트에서 예상하는 형식으로)
-      const formattedMyPortfolios = myData.map((portfolio: any) => ({
-        id: portfolio.id,
-        title: portfolio.title,
+      const formattedMyPortfolios = Array.isArray(myData) ? myData.map((portfolio: any) => ({
+        id: portfolio.id?.toString() || portfolio.id,
+        title: portfolio.title || '제목 없음',
         description: portfolio.profile?.introduction || '자기소개가 없습니다.',
-      }));
+      })) : [];
 
-      const formattedAllPortfolios = allData.map((portfolio: any) => ({
-        id: portfolio.id,
-        title: portfolio.title,
+      const formattedAllPortfolios = Array.isArray(allData) ? allData.map((portfolio: any) => ({
+        id: portfolio.id?.toString() || portfolio.id,
+        title: portfolio.title || '제목 없음',
         description: portfolio.profile?.introduction || '자기소개가 없습니다.',
-      }));
+      })) : [];
+      
+      console.log('변환된 내 포트폴리오:', formattedMyPortfolios);
+      console.log('변환된 전체 포트폴리오:', formattedAllPortfolios);
 
       setMyPortfolios(formattedMyPortfolios);
       setAllPortfolios(formattedAllPortfolios);
