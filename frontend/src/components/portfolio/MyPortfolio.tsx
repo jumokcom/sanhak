@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import styled from "styled-components";
 import PortfolioCard from "./PortfolioCard";
 import CreatePortfolioCard from "./CreatePortfolioCard";
@@ -125,6 +125,25 @@ const CardWrapper = styled.div`
   margin: 0 auto;
 `;
 
+// 로그인 안내 컨테이너
+const LoginPromptContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+  color: #666;
+  font-size: 1.2rem;
+  gap: 20px;
+`;
+
+// 로그인 안내 메시지
+const LoginMessage = styled.div`
+  font-weight: 500;
+`;
+
+
+
 // 내 포트폴리오 타입 정의
 interface Portfolio {
   id: string;
@@ -139,9 +158,26 @@ interface MyPortfolioProps {
 const MyPortfolio: React.FC<MyPortfolioProps> = ({ portfolios }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [portfolioList, setPortfolioList] = useState<Portfolio[]>(portfolios);
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
   const visibleCards = 5; // 한 화면에 보이는 카드 수
   const totalCards = portfolioList.length + 1; // 생성 버튼 포함
   const maxIndex = Math.max(0, totalCards - visibleCards);
+
+  // 로그인 상태 확인
+  useEffect(() => {
+    const checkLoginStatus = () => {
+      const jwtToken = localStorage.getItem('jwt_token');
+      const kakaoToken = window.Kakao?.Auth?.getAccessToken();
+      setIsLoggedIn(!!(jwtToken || kakaoToken));
+    };
+    
+    checkLoginStatus();
+    
+    // 로그인 상태 변화를 감지하기 위한 interval (선택적)
+    const interval = setInterval(checkLoginStatus, 1000);
+    
+    return () => clearInterval(interval);
+  }, []);
 
   // 다음 카드로 이동
   const nextCard = () => {
@@ -170,6 +206,8 @@ const MyPortfolio: React.FC<MyPortfolioProps> = ({ portfolios }) => {
     currentIndex + visibleCards - (currentIndex === 0 ? 1 : 0) // 첫 페이지에서는 생성 버튼 공간 확보
   );
 
+
+
   return (
     <SectionContainer>
       <TitleWrapper>
@@ -178,45 +216,52 @@ const MyPortfolio: React.FC<MyPortfolioProps> = ({ portfolios }) => {
         </SectionTitle>
       </TitleWrapper>
 
-      <SliderOuterWrapper>
-        {/* 왼쪽 화살표 - 항상 표시 */}
-        <LeftArrow 
-          onClick={prevCard} 
-          disabled={currentIndex === 0}
-          aria-label="이전 포트폴리오"
-        >
-          &#10094;
-        </LeftArrow>
+      {/* 로그인 상태에 따른 조건부 렌더링 */}
+      {!isLoggedIn ? (
+        <LoginPromptContainer>
+          <LoginMessage>내 포트폴리오를 관리하려면 로그인을 해주세요</LoginMessage>
+        </LoginPromptContainer>
+      ) : (
+        <SliderOuterWrapper>
+          {/* 왼쪽 화살표 - 항상 표시 */}
+          <LeftArrow 
+            onClick={prevCard} 
+            disabled={currentIndex === 0}
+            aria-label="이전 포트폴리오"
+          >
+            &#10094;
+          </LeftArrow>
 
-        {/* 카드 컨테이너 */}
-        <CardsContainer>
-          {currentIndex === 0 && (
-            <CardWrapper key="create-portfolio">
-              <CreatePortfolioCard />
-            </CardWrapper>
-          )}
-          {visiblePortfolios.map((portfolio) => (
-            <CardWrapper key={portfolio.id}>
-              <PortfolioCard
-                id={portfolio.id}
-                title={portfolio.title}
-                description={portfolio.description}
-                onDelete={handleDeletePortfolio}
-                editable={true}
-              />
-            </CardWrapper>
-          ))}
-        </CardsContainer>
+          {/* 카드 컨테이너 */}
+          <CardsContainer>
+            {currentIndex === 0 && (
+              <CardWrapper key="create-portfolio">
+                <CreatePortfolioCard />
+              </CardWrapper>
+            )}
+            {visiblePortfolios.map((portfolio) => (
+              <CardWrapper key={portfolio.id}>
+                <PortfolioCard
+                  id={portfolio.id}
+                  title={portfolio.title}
+                  description={portfolio.description}
+                  onDelete={handleDeletePortfolio}
+                  editable={true}
+                />
+              </CardWrapper>
+            ))}
+          </CardsContainer>
 
-        {/* 오른쪽 화살표 - 항상 표시 */}
-        <RightArrow 
-          onClick={nextCard} 
-          disabled={currentIndex >= maxIndex}
-          aria-label="다음 포트폴리오"
-        >
-          &#10095;
-        </RightArrow>
-      </SliderOuterWrapper>
+          {/* 오른쪽 화살표 - 항상 표시 */}
+          <RightArrow 
+            onClick={nextCard} 
+            disabled={currentIndex >= maxIndex}
+            aria-label="다음 포트폴리오"
+          >
+            &#10095;
+          </RightArrow>
+        </SliderOuterWrapper>
+      )}
     </SectionContainer>
   );
 };
