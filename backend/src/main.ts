@@ -9,10 +9,14 @@ async function bootstrap() {
   const configService = app.get(ConfigService);
 
   // CORS 설정
-  const corsOrigin = configService.get('CORS_ORIGIN');
+  const corsOrigin = configService.get('CORS_ORIGIN') || 'https://sanhak.onrender.com';
+  console.log('CORS Origin:', corsOrigin);
+  
   app.enableCors({
-    origin: corsOrigin,
+    origin: corsOrigin.split(',').map(origin => origin.trim()),
     credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
   });
 
   // 파일 크기 제한 늘리기
