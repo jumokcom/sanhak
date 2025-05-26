@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import ProjectForm from "./forms/ProjectForm";
 
@@ -90,7 +90,8 @@ interface ProjectItem {
 }
 
 interface ProjectEditSectionProps {
-  // 여기에 필요한 props 정의
+  initialData: ProjectItem[];
+  onSave: (data: ProjectItem[]) => void;
 }
 
 const ItemCard = styled.div`
@@ -180,14 +181,19 @@ const ActionsContainer = styled.div`
   gap: 8px;
 `;
 
-const ProjectEditSection: React.FC<ProjectEditSectionProps> = () => {
-  const [projects, setProjects] = useState<ProjectItem[]>([]);
+const ProjectEditSection: React.FC<ProjectEditSectionProps> = ({ initialData, onSave }) => {
+  const [projects, setProjects] = useState<ProjectItem[]>(initialData || []);
   const [showProjectForm, setShowProjectForm] = useState(false);
+  
+  // initialData가 변경될 때 상태 업데이트
+  useEffect(() => {
+    setProjects(initialData || []);
+  }, [initialData]);
   
   // 프로젝트 추가 함수
   const handleAddProject = (projectData: Omit<ProjectItem, 'id' | 'period'>) => {
-  // 프로젝트 기간 계산
-  const period = `${projectData.startDate} ~ ${projectData.isOngoing ? '현재' : projectData.endDate}`;
+    // 프로젝트 기간 계산
+    const period = `${projectData.startDate} ~ ${projectData.isOngoing ? '현재' : projectData.endDate}`;
     
     const newProject: ProjectItem = {
       ...projectData,
@@ -195,13 +201,21 @@ const ProjectEditSection: React.FC<ProjectEditSectionProps> = () => {
       period
     };
     
-    setProjects([...projects, newProject]);
+    const newProjects = [...projects, newProject];
+    setProjects(newProjects);
     setShowProjectForm(false);
+    
+    // 상위 컴포넌트에 변경사항 알림
+    onSave(newProjects);
   };
   
   // 프로젝트 삭제 함수
   const handleDeleteProject = (id: string) => {
-    setProjects(projects.filter(project => project.id !== id));
+    const newProjects = projects.filter(project => project.id !== id);
+    setProjects(newProjects);
+    
+    // 상위 컴포넌트에 변경사항 알림
+    onSave(newProjects);
   };
 
   return (

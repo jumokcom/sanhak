@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import EducationForm from "./forms/EducationForm";
 import CareerForm from "./forms/CareerForm";
@@ -146,11 +146,20 @@ interface AwardItem {
 }
 
 // 인터페이스
-interface ExperienceEditSectionProps {
-  // 여기에 필요한 props 정의
+interface ExperienceData {
+  educations: EducationItem[];
+  careers: CareerItem[];
+  certificates: CertificateItem[];
+  languages: LanguageItem[];
+  awards: AwardItem[];
 }
 
-const ExperienceEditSection: React.FC<ExperienceEditSectionProps> = () => {
+interface ExperienceEditSectionProps {
+  initialData: ExperienceData;
+  onSave: (data: ExperienceData) => void;
+}
+
+const ExperienceEditSection: React.FC<ExperienceEditSectionProps> = ({ initialData, onSave }) => {
   const [activeTab, setActiveTab] = useState("education");
   
   // 폼 상태
@@ -161,20 +170,54 @@ const ExperienceEditSection: React.FC<ExperienceEditSectionProps> = () => {
   const [showAwardForm, setShowAwardForm] = useState(false);
   
   // 항목 데이터
-  const [educationItems, setEducationItems] = useState<EducationItem[]>([]);
-  const [careerItems, setCareerItems] = useState<CareerItem[]>([]);
-  const [certificateItems, setCertificateItems] = useState<CertificateItem[]>([]);
-  const [languageItems, setLanguageItems] = useState<LanguageItem[]>([]);
-  const [awardItems, setAwardItems] = useState<AwardItem[]>([]);
+  const [educationItems, setEducationItems] = useState<EducationItem[]>(initialData.educations || []);
+  const [careerItems, setCareerItems] = useState<CareerItem[]>(initialData.careers || []);
+  const [certificateItems, setCertificateItems] = useState<CertificateItem[]>(initialData.certificates || []);
+  const [languageItems, setLanguageItems] = useState<LanguageItem[]>(initialData.languages || []);
+  const [awardItems, setAwardItems] = useState<AwardItem[]>(initialData.awards || []);
   
+  // initialData가 변경될 때 상태 업데이트
+  useEffect(() => {
+    setEducationItems(initialData.educations || []);
+    setCareerItems(initialData.careers || []);
+    setCertificateItems(initialData.certificates || []);
+    setLanguageItems(initialData.languages || []);
+    setAwardItems(initialData.awards || []);
+  }, [initialData]);
+  
+  // 데이터 변경 시 상위 컴포넌트에 알림
+  const notifyDataChange = () => {
+    const experienceData: ExperienceData = {
+      educations: educationItems,
+      careers: careerItems,
+      certificates: certificateItems,
+      languages: languageItems,
+      awards: awardItems
+    };
+    onSave(experienceData);
+  };
+
   // 학력 추가
   const handleAddEducation = (data: Omit<EducationItem, 'id'>) => {
     const newItem: EducationItem = {
       ...data,
       id: Date.now().toString()
     };
-    setEducationItems([...educationItems, newItem]);
+    const newEducationItems = [...educationItems, newItem];
+    setEducationItems(newEducationItems);
     setShowEducationForm(false);
+    
+    // 상위 컴포넌트에 변경사항 알림
+    setTimeout(() => {
+      const experienceData: ExperienceData = {
+        educations: newEducationItems,
+        careers: careerItems,
+        certificates: certificateItems,
+        languages: languageItems,
+        awards: awardItems
+      };
+      onSave(experienceData);
+    }, 0);
   };
   
   // 경력 추가
@@ -183,8 +226,21 @@ const ExperienceEditSection: React.FC<ExperienceEditSectionProps> = () => {
       ...data,
       id: Date.now().toString()
     };
-    setCareerItems([...careerItems, newItem]);
+    const newCareerItems = [...careerItems, newItem];
+    setCareerItems(newCareerItems);
     setShowCareerForm(false);
+    
+    // 상위 컴포넌트에 변경사항 알림
+    setTimeout(() => {
+      const experienceData: ExperienceData = {
+        educations: educationItems,
+        careers: newCareerItems,
+        certificates: certificateItems,
+        languages: languageItems,
+        awards: awardItems
+      };
+      onSave(experienceData);
+    }, 0);
   };
   
   // 자격증 추가
@@ -193,8 +249,21 @@ const ExperienceEditSection: React.FC<ExperienceEditSectionProps> = () => {
       ...data,
       id: Date.now().toString()
     };
-    setCertificateItems([...certificateItems, newItem]);
+    const newCertificateItems = [...certificateItems, newItem];
+    setCertificateItems(newCertificateItems);
     setShowCertificateForm(false);
+    
+    // 상위 컴포넌트에 변경사항 알림
+    setTimeout(() => {
+      const experienceData: ExperienceData = {
+        educations: educationItems,
+        careers: careerItems,
+        certificates: newCertificateItems,
+        languages: languageItems,
+        awards: awardItems
+      };
+      onSave(experienceData);
+    }, 0);
   };
   
   // 어학능력 추가
@@ -203,8 +272,21 @@ const ExperienceEditSection: React.FC<ExperienceEditSectionProps> = () => {
       ...data,
       id: Date.now().toString()
     };
-    setLanguageItems([...languageItems, newItem]);
+    const newLanguageItems = [...languageItems, newItem];
+    setLanguageItems(newLanguageItems);
     setShowLanguageForm(false);
+    
+    // 상위 컴포넌트에 변경사항 알림
+    setTimeout(() => {
+      const experienceData: ExperienceData = {
+        educations: educationItems,
+        careers: careerItems,
+        certificates: certificateItems,
+        languages: newLanguageItems,
+        awards: awardItems
+      };
+      onSave(experienceData);
+    }, 0);
   };
   
   // 수상내역 추가
@@ -213,29 +295,93 @@ const ExperienceEditSection: React.FC<ExperienceEditSectionProps> = () => {
       ...data,
       id: Date.now().toString()
     };
-    setAwardItems([...awardItems, newItem]);
+    const newAwardItems = [...awardItems, newItem];
+    setAwardItems(newAwardItems);
     setShowAwardForm(false);
+    
+    // 상위 컴포넌트에 변경사항 알림
+    setTimeout(() => {
+      const experienceData: ExperienceData = {
+        educations: educationItems,
+        careers: careerItems,
+        certificates: certificateItems,
+        languages: languageItems,
+        awards: newAwardItems
+      };
+      onSave(experienceData);
+    }, 0);
   };
   
   // 항목 삭제 함수
   const handleDeleteEducation = (id: string) => {
-    setEducationItems(educationItems.filter(item => item.id !== id));
+    const newEducationItems = educationItems.filter(item => item.id !== id);
+    setEducationItems(newEducationItems);
+    
+    // 상위 컴포넌트에 변경사항 즉시 알림
+    const experienceData: ExperienceData = {
+      educations: newEducationItems,
+      careers: careerItems,
+      certificates: certificateItems,
+      languages: languageItems,
+      awards: awardItems
+    };
+    onSave(experienceData);
   };
   
   const handleDeleteCareer = (id: string) => {
-    setCareerItems(careerItems.filter(item => item.id !== id));
+    const newCareerItems = careerItems.filter(item => item.id !== id);
+    setCareerItems(newCareerItems);
+    
+    const experienceData: ExperienceData = {
+      educations: educationItems,
+      careers: newCareerItems,
+      certificates: certificateItems,
+      languages: languageItems,
+      awards: awardItems
+    };
+    onSave(experienceData);
   };
   
   const handleDeleteCertificate = (id: string) => {
-    setCertificateItems(certificateItems.filter(item => item.id !== id));
+    const newCertificateItems = certificateItems.filter(item => item.id !== id);
+    setCertificateItems(newCertificateItems);
+    
+    const experienceData: ExperienceData = {
+      educations: educationItems,
+      careers: careerItems,
+      certificates: newCertificateItems,
+      languages: languageItems,
+      awards: awardItems
+    };
+    onSave(experienceData);
   };
   
   const handleDeleteLanguage = (id: string) => {
-    setLanguageItems(languageItems.filter(item => item.id !== id));
+    const newLanguageItems = languageItems.filter(item => item.id !== id);
+    setLanguageItems(newLanguageItems);
+    
+    const experienceData: ExperienceData = {
+      educations: educationItems,
+      careers: careerItems,
+      certificates: certificateItems,
+      languages: newLanguageItems,
+      awards: awardItems
+    };
+    onSave(experienceData);
   };
   
   const handleDeleteAward = (id: string) => {
-    setAwardItems(awardItems.filter(item => item.id !== id));
+    const newAwardItems = awardItems.filter(item => item.id !== id);
+    setAwardItems(newAwardItems);
+    
+    const experienceData: ExperienceData = {
+      educations: educationItems,
+      careers: careerItems,
+      certificates: certificateItems,
+      languages: languageItems,
+      awards: newAwardItems
+    };
+    onSave(experienceData);
   };
 
   return (

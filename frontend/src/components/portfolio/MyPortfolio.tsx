@@ -1,7 +1,9 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import PortfolioCard from "./PortfolioCard";
 import CreatePortfolioCard from "./CreatePortfolioCard";
+import { useNavigate } from "react-router-dom";
+import { portfolioApi } from "../../utils/api";
 
 // 섹션 컨테이너 스타일
 const SectionContainer = styled.div`
@@ -10,7 +12,7 @@ const SectionContainer = styled.div`
   flex-direction: column;
   justify-content: center;
   position: relative;
-  max-width: 90%;
+  max-width: 95%; /* 90%에서 95%로 증가 */
   margin: 0 auto;
   overflow: hidden;
   padding: 20px;
@@ -52,77 +54,50 @@ const TitleHighlight = styled.span`
   }
 `;
 
-// 슬라이더 전체 컨테이너
-const SliderOuterWrapper = styled.div`
-  position: relative;
-  width: 100%;
+// 단순한 컨테이너 (슬라이더 없음)
+const SimpleContainer = styled.div`
   display: flex;
+  justify-content: center;
   align-items: center;
+  gap: 20px;
+  padding: 40px;
+  min-height: 300px;
 `;
 
-// 화살표 버튼 공통 스타일
-const ArrowButton = styled.button`
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 36px;
-  height: 36px;
-  background-color: transparent;
+// 수정 버튼
+const EditButton = styled.button`
+  background-color: #3182ce;
+  color: white;
   border: none;
-  color: #1a202c;
-  font-size: 28px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  border-radius: 8px;
+  padding: 12px 24px;
+  font-size: 1rem;
+  font-weight: 600;
   cursor: pointer;
-  z-index: 100;
-  opacity: 0.7;
-  transition: all 0.3s ease;
+  transition: background-color 0.2s;
+  margin-bottom: 20px;
 
   &:hover {
-    opacity: 1;
-    color: #2d3748;
-  }
-
-  &:disabled {
-    opacity: 0.3;
-    cursor: not-allowed;
-  }
-
-  &:focus {
-    outline: none;
+    background-color: #2c5282;
   }
 `;
 
-// 왼쪽 화살표 버튼
-const LeftArrow = styled(ArrowButton)`
-  left: -10px;
+// 포트폴리오 카드 레이아웃
+const PortfolioLayout = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
 `;
 
-// 오른쪽 화살표 버튼
-const RightArrow = styled(ArrowButton)`
-  right: -10px;
-`;
-
-// 카드 컨테이너
-const CardsContainer = styled.div`
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 8px;
-  width: calc(100% - 100px);
-  margin: 10px auto;
-  padding: 20px;
-  background-color: #edf2f7;
-  border-radius: 12px;
-  box-shadow: inset 0 0 8px rgba(0, 0, 0, 0.08);
-  border: 1px solid #cbd5e0;
-`;
-
-// 카드 래퍼
+// 카드 래퍼 (크기 조정)
 const CardWrapper = styled.div`
+  width: 300px;
   transition: transform 0.3s ease;
-  width: 95%;
-  margin: 0 auto;
+  
+  &:hover {
+    transform: translateY(-5px);
+  }
 `;
 
 // 로그인 안내 컨테이너
@@ -155,13 +130,13 @@ interface MyPortfolioProps {
   portfolios: Portfolio[];
 }
 
+// 내 포트폴리오 컴포넌트 - 단순화된 버전
 const MyPortfolio: React.FC<MyPortfolioProps> = ({ portfolios }) => {
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [portfolioList, setPortfolioList] = useState<Portfolio[]>(portfolios);
+  const navigate = useNavigate();
   const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
-  const visibleCards = 5; // 한 화면에 보이는 카드 수
-  const totalCards = portfolioList.length + 1; // 생성 버튼 포함
-  const maxIndex = Math.max(0, totalCards - visibleCards);
+  
+  // 첫 번째 포트폴리오만 사용 (하나만 허용)
+  const myPortfolio = portfolios.length > 0 ? portfolios[0] : null;
 
   // 로그인 상태 확인
   useEffect(() => {
@@ -173,38 +148,47 @@ const MyPortfolio: React.FC<MyPortfolioProps> = ({ portfolios }) => {
     
     checkLoginStatus();
     
-    // 로그인 상태 변화를 감지하기 위한 interval (선택적)
+    // 로그인 상태 변화를 감지하기 위한 interval
     const interval = setInterval(checkLoginStatus, 1000);
     
     return () => clearInterval(interval);
   }, []);
 
-  // 다음 카드로 이동
-  const nextCard = () => {
-    setCurrentIndex((prev) => Math.min(prev + 1, maxIndex));
+  // 포트폴리오 생성 버튼 클릭
+  const handleCreatePortfolio = () => {
+    navigate('/edit');
   };
 
-  // 이전 카드로 이동
-  const prevCard = () => {
-    setCurrentIndex((prev) => Math.max(prev - 1, 0));
-  };
-
-  // 포트폴리오 삭제 처리
-  const handleDeletePortfolio = (id: string) => {
-    setPortfolioList((prevList) => prevList.filter((portfolio) => portfolio.id !== id));
-    
-    // 삭제 후 현재 인덱스가 최대 인덱스보다 크면 조정
-    const newMaxIndex = Math.max(0, portfolioList.length - 1 + 1 - visibleCards);
-    if (currentIndex > newMaxIndex) {
-      setCurrentIndex(newMaxIndex);
+  // 포트폴리오 수정 버튼 클릭
+  const handleEditPortfolio = () => {
+    if (myPortfolio) {
+      navigate(`/edit/${myPortfolio.id}`);
     }
   };
 
-  // 현재 표시할 포트폴리오들
-  const visiblePortfolios = portfolioList.slice(
-    currentIndex,
-    currentIndex + visibleCards - (currentIndex === 0 ? 1 : 0) // 첫 페이지에서는 생성 버튼 공간 확보
-  );
+  // 포트폴리오 삭제 처리
+  const handleDeletePortfolio = async (id: string) => {
+    if (window.confirm('정말로 삭제하시겠습니까?')) {
+      try {
+        console.log('포트폴리오 삭제 시작:', id);
+        
+        // API 호출로 삭제
+        await portfolioApi.deletePortfolio(+id);
+        
+        console.log('포트폴리오 삭제 성공');
+        
+        // 성공 후 메인 페이지 새로고침 (데이터 업데이트)
+        window.location.reload();
+        
+      } catch (error) {
+        console.error('포트폴리오 삭제 실패:', error);
+        
+        // 에러 메시지 표시
+        const errorMessage = error instanceof Error ? error.message : '알 수 없는 오류가 발생했습니다';
+        alert(`삭제에 실패했습니다: ${errorMessage}`);
+      }
+    }
+  };
 
 
 
@@ -222,45 +206,30 @@ const MyPortfolio: React.FC<MyPortfolioProps> = ({ portfolios }) => {
           <LoginMessage>내 포트폴리오를 관리하려면 로그인을 해주세요</LoginMessage>
         </LoginPromptContainer>
       ) : (
-        <SliderOuterWrapper>
-          {/* 왼쪽 화살표 - 항상 표시 */}
-          <LeftArrow 
-            onClick={prevCard} 
-            disabled={currentIndex === 0}
-            aria-label="이전 포트폴리오"
-          >
-            &#10094;
-          </LeftArrow>
-
-          {/* 카드 컨테이너 */}
-          <CardsContainer>
-            {currentIndex === 0 && (
-              <CardWrapper key="create-portfolio">
-                <CreatePortfolioCard />
-              </CardWrapper>
-            )}
-            {visiblePortfolios.map((portfolio) => (
-              <CardWrapper key={portfolio.id}>
+        <SimpleContainer>
+          {myPortfolio ? (
+            // 포트폴리오가 있을 때: 수정 버튼 + 포트폴리오 카드
+            <PortfolioLayout>
+              <EditButton onClick={handleEditPortfolio}>
+                포트폴리오 수정
+              </EditButton>
+              <CardWrapper>
                 <PortfolioCard
-                  id={portfolio.id}
-                  title={portfolio.title}
-                  description={portfolio.description}
+                  id={myPortfolio.id}
+                  title={myPortfolio.title}
+                  description={myPortfolio.description}
                   onDelete={handleDeletePortfolio}
                   editable={true}
                 />
               </CardWrapper>
-            ))}
-          </CardsContainer>
-
-          {/* 오른쪽 화살표 - 항상 표시 */}
-          <RightArrow 
-            onClick={nextCard} 
-            disabled={currentIndex >= maxIndex}
-            aria-label="다음 포트폴리오"
-          >
-            &#10095;
-          </RightArrow>
-        </SliderOuterWrapper>
+            </PortfolioLayout>
+          ) : (
+            // 포트폴리오가 없을 때: 생성 버튼만
+            <CardWrapper>
+              <CreatePortfolioCard />
+            </CardWrapper>
+          )}
+        </SimpleContainer>
       )}
     </SectionContainer>
   );

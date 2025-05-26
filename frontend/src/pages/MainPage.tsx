@@ -4,6 +4,7 @@ import PageLayout from "../components/PageLayout";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import { MyPortfolio, AllPortfolio } from "../components/portfolio";
+import { portfolioApi } from "../utils/api";
 
 // 섹션 컨테이너 스타일
 const Section = styled.div`
@@ -64,32 +65,62 @@ const Dot = styled.div<{ active: boolean }>`
   }
 `;
 
-// 더미 데이터 (예시용)
-const myPortfolios = Array(10)
-  .fill(null)
-  .map((_, index) => ({
-    id: `my-${index + 1}`,
-    title: `내 포트폴리오 ${index + 1}`,
-    description:
-      "포트폴리오 설명입니다. 이 포트폴리오는 간단한 설명을 포함하고 있습니다. 여기에 더 많은 내용을 추가할 수 있습니다.",
-  }));
 
-const allPortfolios = Array(30)
-  .fill(null)
-  .map((_, index) => ({
-    id: `all-${index + 1}`,
-    title: `포트폴리오 ${index + 1}`,
-    description:
-      "포트폴리오 설명입니다. 이 포트폴리오는 간단한 설명을 포함하고 있습니다.",
-  }));
 
 const MainPage = () => {
   const [activeSection, setActiveSection] = useState(0);
+  const [myPortfolios, setMyPortfolios] = useState<any[]>([]);
+  const [allPortfolios, setAllPortfolios] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const sectionRefs = [
     useRef<HTMLDivElement>(null),
     useRef<HTMLDivElement>(null),
   ];
+
+  // 포트폴리오 데이터 로드
+  useEffect(() => {
+    loadPortfolios();
+  }, []);
+
+  const loadPortfolios = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      // 내 포트폴리오와 전체 포트폴리오를 동시에 로드
+      const [myData, allData] = await Promise.all([
+        portfolioApi.getMyPortfolios().catch(() => []), // 로그인 안 되어 있으면 빈 배열
+        portfolioApi.getAllPortfolios()
+      ]);
+
+      console.log('내 포트폴리오:', myData);
+      console.log('전체 포트폴리오:', allData);
+
+      // 데이터 형식 변환 (컴포넌트에서 예상하는 형식으로)
+      const formattedMyPortfolios = myData.map((portfolio: any) => ({
+        id: portfolio.id,
+        title: portfolio.title,
+        description: portfolio.profile?.introduction || '자기소개가 없습니다.',
+      }));
+
+      const formattedAllPortfolios = allData.map((portfolio: any) => ({
+        id: portfolio.id,
+        title: portfolio.title,
+        description: portfolio.profile?.introduction || '자기소개가 없습니다.',
+      }));
+
+      setMyPortfolios(formattedMyPortfolios);
+      setAllPortfolios(formattedAllPortfolios);
+    } catch (error) {
+      console.error('포트폴리오 로드 실패:', error);
+      setError('포트폴리오를 불러오는데 실패했습니다.');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // 휠 이벤트 처리
   useEffect(() => {
@@ -138,14 +169,51 @@ const MainPage = () => {
         <Section ref={sectionRefs[0]}>
           <Header />
           <CenteredContentArea>
-            <MyPortfolio portfolios={myPortfolios} />
+            {loading ? (
+              <div style={{ 
+                display: 'flex', 
+                justifyContent: 'center', 
+                alignItems: 'center', 
+                height: '200px',
+                fontSize: '1.2rem',
+                color: '#666'
+              }}>
+                포트폴리오를 불러오는 중...
+              </div>
+            ) : error ? (
+              <div style={{ 
+                display: 'flex', 
+                justifyContent: 'center', 
+                alignItems: 'center', 
+                height: '200px',
+                fontSize: '1.2rem',
+                color: '#e53e3e'
+              }}>
+                {error}
+              </div>
+            ) : (
+              <MyPortfolio portfolios={myPortfolios} />
+            )}
           </CenteredContentArea>
         </Section>
 
         {/* 두 번째 섹션: 전체 포트폴리오 + 푸터 */}
         <Section ref={sectionRefs[1]}>
           <ContentArea>
-            <AllPortfolio portfolios={allPortfolios} itemsPerPage={10} />
+            {loading ? (
+              <div style={{ 
+                display: 'flex', 
+                justifyContent: 'center', 
+                alignItems: 'center', 
+                height: '200px',
+                fontSize: '1.2rem',
+                color: '#666'
+              }}>
+                포트폴리오를 불러오는 중...
+              </div>
+            ) : (
+              <AllPortfolio portfolios={allPortfolios} itemsPerPage={10} />
+            )}
           </ContentArea>
           <Footer />
         </Section>

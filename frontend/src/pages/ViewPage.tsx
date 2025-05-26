@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import PageLayout from "../components/PageLayout";
+import { portfolioApi } from "../utils/api";
 import {
   ProfileSection,
   ExperienceSection,
@@ -163,6 +164,10 @@ const ViewPage = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [portfolioData, setPortfolioData] = useState<any>(null);
+  
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const sectionRefs = [
     useRef<HTMLDivElement>(null),
@@ -171,13 +176,156 @@ const ViewPage = () => {
     useRef<HTMLDivElement>(null),
   ];
 
-  // 포트폴리오 데이터 로드 (현재는 더미 데이터 사용)
-  const profile = dummyProfile;
-  const experiences = dummyExperiences;
-  const projects = dummyProjects;
-  const certificates = dummyCertificates;
-  const languages = dummyLanguages;
-  const awards = dummyAwards;
+  // 포트폴리오 데이터 로드
+  useEffect(() => {
+    if (id) {
+      loadPortfolioData(+id);
+    } else {
+      setError('포트폴리오 ID가 없습니다.');
+      setLoading(false);
+    }
+  }, [id]);
+
+  const loadPortfolioData = async (portfolioId: number) => {
+    try {
+      setLoading(true);
+      console.log('포트폴리오 로드 시작:', portfolioId);
+      
+      const data = await portfolioApi.getPortfolio(portfolioId);
+      console.log('로드된 포트폴리오 데이터:', data);
+      
+      if (data) {
+        setPortfolioData(data);
+      } else {
+        setError('포트폴리오를 찾을 수 없습니다.');
+      }
+    } catch (error) {
+      console.error('포트폴리오 로드 실패:', error);
+      setError('포트폴리오를 불러오는데 실패했습니다.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 데이터 변환 (기존 컴포넌트 형식에 맞게)
+  const getProfileData = () => {
+    if (!portfolioData?.profile) return null;
+    
+    const profile = portfolioData.profile;
+    return {
+      name: profile.name || '',
+      age: profile.birthDate ? new Date().getFullYear() - new Date(profile.birthDate).getFullYear() : 0,
+      gender: profile.gender || '',
+      email: profile.email || '',
+      phone: profile.phone || '',
+      introduction: profile.introduction || '',
+      image: profile.image || '',
+      sns: profile.sns || []
+    };
+  };
+
+  // 이력 데이터 변환
+  const getExperienceData = () => {
+    if (!portfolioData) return [];
+    
+    const experiences: Array<{
+      id: number;
+      period: string;
+      organization: string;
+      role: string;
+      description: string;
+    }> = [];
+    
+    // 학력 데이터 추가
+    if (portfolioData.educations && Array.isArray(portfolioData.educations)) {
+      portfolioData.educations.forEach((edu: any, index: number) => {
+        experiences.push({
+          id: edu.id ? parseInt(edu.id) : Date.now() + index,
+          period: `${edu.startDate} - ${edu.isAttending ? '현재' : edu.endDate}`,
+          organization: edu.school,
+          role: '학력',
+          description: `${edu.degree} - ${edu.major}${edu.description ? ` - ${edu.description}` : ''}`
+        });
+      });
+    }
+    
+    // 경력 데이터 추가
+    if (portfolioData.careers && Array.isArray(portfolioData.careers)) {
+      portfolioData.careers.forEach((career: any, index: number) => {
+        experiences.push({
+          id: career.id ? parseInt(career.id) : Date.now() + index + 1000,
+          period: `${career.startDate} - ${career.isWorking ? '현재' : career.endDate}`,
+          organization: career.company,
+          role: '경력',
+          description: `${career.position}${career.description ? ` - ${career.description}` : ''}`
+        });
+      });
+    }
+    
+    return experiences;
+  };
+  
+  // 자격증 데이터 변환
+  const getCertificateData = () => {
+    if (!portfolioData?.certificates || !Array.isArray(portfolioData.certificates)) return [];
+    
+    return portfolioData.certificates.map((cert: any, index: number) => ({
+      id: cert.id ? parseInt(cert.id) : Date.now() + index,
+      name: cert.name,
+      issuer: cert.issuer,
+      date: cert.date
+    }));
+  };
+  
+  // 어학능력 데이터 변환
+  const getLanguageData = () => {
+    if (!portfolioData?.languages || !Array.isArray(portfolioData.languages)) return [];
+    
+    return portfolioData.languages.map((lang: any, index: number) => ({
+      id: lang.id ? parseInt(lang.id) : Date.now() + index,
+      name: lang.language,
+      level: lang.testName,
+      score: lang.score
+    }));
+  };
+  
+  // 수상내역 데이터 변환
+  const getAwardData = () => {
+    if (!portfolioData?.awards || !Array.isArray(portfolioData.awards)) return [];
+    
+    return portfolioData.awards.map((award: any, index: number) => ({
+      id: award.id ? parseInt(award.id) : Date.now() + index,
+      name: award.name,
+      issuer: award.issuer,
+      date: award.date
+    }));
+  };
+
+  // 프로젝트 데이터 변환
+  const getProjectData = () => {
+    if (!portfolioData?.projects || !Array.isArray(portfolioData.projects)) return [];
+    
+    return portfolioData.projects.map((project: any, index: number) => ({
+      id: project.id || `project-${index}`,
+      title: project.title,
+      period: project.period || `${project.startDate} - ${project.isOngoing ? '현재' : project.endDate}`,
+      role: project.role,
+      skills: project.skills || [],
+      description: project.description || '',
+      serviceUrl: project.serviceUrl || '',
+      githubUrl: project.githubUrl || '',
+      image: project.image || '',
+      isTeamProject: project.scope === '팀' || project.scope === '팀 프로젝트' || project.projectScope === '팀' || project.projectScope === '팀 프로젝트'
+    }));
+  };
+
+  const getAboutData = () => {
+    return portfolioData?.about || {
+      growth: '',
+      personality: '',
+      experience: ''
+    };
+  };
 
   // 휠 이벤트 처리
   useEffect(() => {
@@ -265,33 +413,100 @@ const ViewPage = () => {
     navigate("/");
   };
 
+  if (loading) {
+    return (
+      <PageLayout>
+        <div style={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: '100vh',
+          fontSize: '1.5rem',
+          color: '#666'
+        }}>
+          포트폴리오를 불러오는 중...
+        </div>
+      </PageLayout>
+    );
+  }
+
+  if (error) {
+    return (
+      <PageLayout>
+        <div style={{
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          alignItems: 'center',
+          height: '100vh',
+          gap: '20px'
+        }}>
+          <div style={{ fontSize: '1.5rem', color: '#e53e3e' }}>
+            {error}
+          </div>
+          <button
+            onClick={() => navigate('/')}
+            style={{
+              padding: '12px 24px',
+              backgroundColor: '#3182ce',
+              color: 'white',
+              border: 'none',
+              borderRadius: '8px',
+              cursor: 'pointer'
+            }}
+          >
+            메인으로 돌아가기
+          </button>
+        </div>
+      </PageLayout>
+    );
+  }
+
+  const profileData = getProfileData();
+  const experienceData = getExperienceData();
+  const certificateData = getCertificateData();
+  const languageData = getLanguageData();
+  const awardData = getAwardData();
+  const projectData = getProjectData();
+  const aboutData = getAboutData();
+  
+  console.log('ViewPage 렌더링 데이터:', {
+    profileData,
+    experienceData,
+    certificateData,
+    languageData,
+    awardData,
+    projectData,
+    aboutData
+  });
+
   return (
     <PageLayout>
       <ScrollContainer ref={scrollContainerRef}>
         {/* 섹션 1: 헤더 + 개인정보 */}
         <Section ref={sectionRefs[0]}>
           <Header />
-          <ProfileSection profile={profile} />
+          {profileData && <ProfileSection profile={profileData} />}
         </Section>
 
         {/* 섹션 2: 이력 */}
         <Section ref={sectionRefs[1]}>
           <ExperienceSection
-            experiences={experiences}
-            certificates={certificates}
-            languages={languages}
-            awards={awards}
+            experiences={experienceData}
+            certificates={certificateData}
+            languages={languageData}
+            awards={awardData}
           />
         </Section>
 
         {/* 섹션 3: 프로젝트 */}
         <Section ref={sectionRefs[2]}>
-          <ProjectSection projects={projects} />
+          <ProjectSection projects={projectData} />
         </Section>
 
         {/* 섹션 4: 자기소개 + 푸터 */}
         <Section ref={sectionRefs[3]}>
-          <AboutMeSection content={about} />
+          <AboutMeSection content={aboutData} />
           <Footer />
         </Section>
       </ScrollContainer>

@@ -1,4 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToMany } from 'typeorm';
+import { Portfolio } from '../../portfolios/entities/portfolio.entity';
 
 @Entity('users')
 export class User {
@@ -25,6 +26,10 @@ export class User {
 
   @Column({ default: false })
   isVerified: boolean;
+
+  // 포트폴리오와의 관계
+  @OneToMany(() => Portfolio, (portfolio) => portfolio.user)
+  portfolios: Portfolio[];
 
   @CreateDateColumn()
   createdAt: Date;

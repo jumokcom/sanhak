@@ -5,7 +5,9 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
+import { PortfoliosModule } from './portfolios/portfolios.module';
 import { User } from './users/entities/user.entity';
+import { Portfolio } from './portfolios/entities/portfolio.entity';
 
 @Module({
   imports: [
@@ -26,7 +28,7 @@ import { User } from './users/entities/user.entity';
         return {
           type: 'postgres',
           url: databaseUrl,
-          entities: [User],
+          entities: [User, Portfolio],
           synchronize: true,
           ssl: {
             rejectUnauthorized: false
@@ -39,6 +41,7 @@ import { User } from './users/entities/user.entity';
     }),
     AuthModule,
     UsersModule,
+    PortfoliosModule,
   ],
   controllers: [AppController],
   providers: [AppService],

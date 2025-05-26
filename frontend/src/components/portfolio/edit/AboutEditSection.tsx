@@ -95,21 +95,46 @@ const SaveButton = styled.button`
 `;
 
 // 인터페이스
+interface AboutData {
+  growth: string;
+  personality: string;
+  experience: string;
+}
+
 interface AboutEditSectionProps {
-  // 여기에 필요한 props 정의
+  initialData?: AboutData;
+  onSave?: (data: AboutData) => void;
 }
 
 const MAX_CHAR_LIMIT = 500;
 
-const AboutEditSection: React.FC<AboutEditSectionProps> = () => {
-  const [growth, setGrowth] = useState('');
-  const [personality, setPersonality] = useState('');
-  const [experience, setExperience] = useState('');
+const AboutEditSection: React.FC<AboutEditSectionProps> = ({ initialData, onSave }) => {
+  const [growth, setGrowth] = useState(initialData?.growth || '');
+  const [personality, setPersonality] = useState(initialData?.personality || '');
+  const [experience, setExperience] = useState(initialData?.experience || '');
+  
+  // initialData가 변경될 때 상태 업데이트
+  React.useEffect(() => {
+    if (initialData) {
+      setGrowth(initialData.growth || '');
+      setPersonality(initialData.personality || '');
+      setExperience(initialData.experience || '');
+    }
+  }, [initialData]);
   
   const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement>, setter: React.Dispatch<React.SetStateAction<string>>) => {
     const value = e.target.value;
     if (value.length <= MAX_CHAR_LIMIT) {
       setter(value);
+      // 데이터 변경시 즉시 저장
+      if (onSave) {
+        const updatedData = {
+          growth: e.target.name === 'growth' ? value : growth,
+          personality: e.target.name === 'personality' ? value : personality,
+          experience: e.target.name === 'experience' ? value : experience
+        };
+        onSave(updatedData);
+      }
     }
   };
   
