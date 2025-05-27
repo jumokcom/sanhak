@@ -109,12 +109,14 @@ const MainPage = () => {
         id: portfolio.id?.toString() || portfolio.id,
         title: portfolio.title || '제목 없음',
         description: portfolio.profile?.introduction || '자기소개가 없습니다.',
+        profileImage: portfolio.profile?.image || '', // 프로필 이미지 추가
       })) : [];
 
       const formattedAllPortfolios = Array.isArray(allData) ? allData.map((portfolio: any) => ({
         id: portfolio.id?.toString() || portfolio.id,
         title: portfolio.title || '제목 없음',
         description: portfolio.profile?.introduction || '자기소개가 없습니다.',
+        profileImage: portfolio.profile?.image || '', // 프로필 이미지 추가
       })) : [];
       
       console.log('변환된 내 포트폴리오:', formattedMyPortfolios);

@@ -64,32 +64,6 @@ const SimpleContainer = styled.div`
   min-height: 300px;
 `;
 
-// 수정 버튼
-const EditButton = styled.button`
-  background-color: #3182ce;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  padding: 12px 24px;
-  font-size: 1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background-color 0.2s;
-  margin-bottom: 20px;
-
-  &:hover {
-    background-color: #2c5282;
-  }
-`;
-
-// 포트폴리오 카드 레이아웃
-const PortfolioLayout = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 20px;
-`;
-
 // 카드 래퍼 (크기 조정)
 const CardWrapper = styled.div`
   width: 300px;
@@ -124,6 +98,7 @@ interface Portfolio {
   id: string;
   title: string;
   description: string;
+  profileImage?: string;
 }
 
 interface MyPortfolioProps {
@@ -162,18 +137,6 @@ const MyPortfolio: React.FC<MyPortfolioProps> = ({ portfolios }) => {
     
     return () => clearInterval(interval);
   }, [portfolios]);
-
-  // 포트폴리오 생성 버튼 클릭
-  const handleCreatePortfolio = () => {
-    navigate('/edit');
-  };
-
-  // 포트폴리오 수정 버튼 클릭
-  const handleEditPortfolio = () => {
-    if (myPortfolio) {
-      navigate(`/edit/${myPortfolio.id}`);
-    }
-  };
 
   // 포트폴리오 삭제 처리
   const handleDeletePortfolio = async (id: string) => {
@@ -222,22 +185,18 @@ const MyPortfolio: React.FC<MyPortfolioProps> = ({ portfolios }) => {
           </CardWrapper>
         </SimpleContainer>
       ) : myPortfolio ? (
-        // 로그인되고 포트폴리오가 있을 때: 수정 버튼 + 포트폴리오 카드
+        // 로그인되고 포트폴리오가 있을 때: 포트폴리오 카드만
         <SimpleContainer>
-          <PortfolioLayout>
-            <EditButton onClick={handleEditPortfolio}>
-              포트폴리오 수정
-            </EditButton>
-            <CardWrapper>
-              <PortfolioCard
-                id={myPortfolio.id}
-                title={myPortfolio.title}
-                description={myPortfolio.description}
-                onDelete={handleDeletePortfolio}
-                editable={true}
-              />
-            </CardWrapper>
-          </PortfolioLayout>
+          <CardWrapper>
+            <PortfolioCard
+              id={myPortfolio.id}
+              title={myPortfolio.title}
+              description={myPortfolio.description}
+              profileImage={myPortfolio.profileImage}
+              onDelete={handleDeletePortfolio}
+              editable={true}
+            />
+          </CardWrapper>
         </SimpleContainer>
       ) : (
         // 로그인되었지만 포트폴리오 데이터가 없는 경우

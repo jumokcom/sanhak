@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 
 // 포트폴리오 카드 스타일
 const CardContainer = styled.div`
-  height: 290px;
+  height: 320px; /* 원래대로 */
   background-color: white;
   border-radius: 8px;
   padding: 16px;
@@ -13,16 +13,16 @@ const CardContainer = styled.div`
   flex-direction: column;
   justify-content: space-between;
   transition: all 0.3s ease;
-  border: 2px solid #e2e8f0; /* 테두리 두께 증가 및 색상 변경 */
+  border: 2px solid #e2e8f0;
   position: relative;
   overflow: hidden;
-  cursor: pointer; /* 클릭 가능함을 알리는 커서 */
+  cursor: pointer;
 
   &:hover {
     transform: translateY(-5px);
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
-    border-color: #90cdf4; /* 호버 시 테두리 색상 변경 */
-    background-color: #f7fafc; /* 호버 시 배경색 변경 */
+    border-color: #90cdf4;
+    background-color: #f7fafc;
   }
 
   &:hover .view-indicator {
@@ -40,11 +40,48 @@ const CardContainer = styled.div`
     position: absolute;
     top: 0;
     left: 0;
-    width: 5px; /* 너비 증가 */
+    width: 5px;
     height: 100%;
-    background: linear-gradient(to bottom, #3182ce, #63b3ed); /* 색상 변경 */
-    opacity: 0.9; /* 불투명도 증가 */
+    background: linear-gradient(to bottom, #3182ce, #63b3ed);
+    opacity: 0.9;
   }
+`;
+
+// 프로필 이미지 컨테이너
+const ProfileImageContainer = styled.div`
+  width: 140px;
+  height: 180px;
+  border-radius: 8px;
+  overflow: hidden;
+  margin: 10px auto;
+  border: 2px solid #e2e8f0;
+  flex-shrink: 0;
+`;
+
+// 프로필 이미지
+const ProfileImage = styled.img`
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+`;
+
+// 기본 아바타 아이콘
+const DefaultAvatar = styled.div`
+  width: 100%;
+  height: 100%;
+  background-color: #f7fafc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #a0aec0;
+`;
+
+// 카드 컨텐츠 영역
+const CardContent = styled.div`
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 `;
 
 const CardTitle = styled.h3`
@@ -284,16 +321,18 @@ interface PortfolioCardProps {
   id: string;
   title: string;
   description: string;
+  profileImage?: string; // 프로필 이미지 추가
   onDelete?: (id: string) => void;
-  editable?: boolean; // 수정/삭제 버튼 표시 여부
+  editable?: boolean;
 }
 
 const PortfolioCard: React.FC<PortfolioCardProps> = ({
   id,
   title,
   description,
+  profileImage,
   onDelete,
-  editable = false, // 기본값은 false로 설정
+  editable = false,
 }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -374,8 +413,26 @@ const PortfolioCard: React.FC<PortfolioCardProps> = ({
         </>
       )}
       
-      <CardTitle>{title}</CardTitle>
-      <CardDescription>{description}</CardDescription>
+      <CardContent>
+        <CardTitle>{title}</CardTitle>
+        
+        {/* 제목과 설명 사이에 프로필 이미지 */}
+        <ProfileImageContainer>
+          {profileImage ? (
+            <ProfileImage src={profileImage} alt="프로필 이미지" />
+          ) : (
+            <DefaultAvatar>
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="12" cy="8" r="4" stroke="currentColor" strokeWidth="2"/>
+                <path d="M6 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2" stroke="currentColor" strokeWidth="2"/>
+              </svg>
+            </DefaultAvatar>
+          )}
+        </ProfileImageContainer>
+        
+        <CardDescription>{description}</CardDescription>
+      </CardContent>
+      
       <ViewIndicator className="view-indicator" />
     </CardContainer>
   );

@@ -312,18 +312,62 @@ const ProfileEditSection: React.FC<ProfileEditSectionProps> = ({
     fileInputRef.current?.click();
   };
 
-  // 이미지 파일 변경 핸들러
-  const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
+  // 이미지 파일 업로드 핸들러
+  const handleImageChange = async (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // 파일 미리보기 URL 생성
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setPreviewUrl(reader.result as string);
-      setProfileData({ ...profileData, image: reader.result as string });
-    };
-    reader.readAsDataURL(file);
+    // 파일 크기 체크 (10MB 제한)
+    if (file.size > 10 * 1024 * 1024) {
+      alert('파일 크기는 10MB 이하여야 합니다.');
+      return;
+    }
+
+    // 이미지 파일 형식 체크
+    if (!file.type.match(/^image\/(jpg|jpeg|png|gif|webp)$/)) {
+      alert('JPG, PNG, GIF, WEBP 형식의 이미지만 업로드 가능합니다.');
+      return;
+    }
+
+    try {
+      // 미리보기 URL 생성
+      const previewUrl = URL.createObjectURL(file);
+      setPreviewUrl(previewUrl);
+
+      // 서버에 파일 업로드
+      const formData = new FormData();
+      formData.append('image', file);
+
+      const token = localStorage.getItem('jwt_token');
+      const API_BASE_URL = process.env.NODE_ENV === 'production' 
+        ? 'https://sanhak-backend.onrender.com/api'
+        : 'http://localhost:3001/api';
+
+      const response = await fetch(`${API_BASE_URL}/portfolios/upload/image`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error('이미지 업로드 실패');
+      }
+
+      const result = await response.json();
+      
+      // 업로드된 이미지 URL을 프로필 데이터에 저장
+      setProfileData({ ...profileData, image: result.imageUrl });
+      
+      console.log('이미지 업로드 성공:', result.imageUrl);
+    } catch (error) {
+      console.error('이미지 업로드 실패:', error);
+      alert('이미지 업로드에 실패했습니다. 다시 시도해주세요.');
+      
+      // 실패 시 미리보기 제거
+      setPreviewUrl(null);
+    }
   };
 
   // SNS 추가 핸들러

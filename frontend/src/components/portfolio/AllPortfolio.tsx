@@ -87,6 +87,7 @@ interface Portfolio {
   id: string;
   title: string;
   description: string;
+  profileImage?: string;
 }
 
 interface AllPortfolioProps {
@@ -144,6 +145,7 @@ const AllPortfolio: React.FC<AllPortfolioProps> = ({
               id={portfolio.id}
               title={portfolio.title}
               description={portfolio.description}
+              profileImage={portfolio.profileImage}
             />
           </CardWrapper>
         ))}
