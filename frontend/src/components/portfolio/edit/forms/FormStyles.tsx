@@ -40,9 +40,9 @@ export const FormStyles = {
     
     &:focus {
       outline: none;
-      border-color: #3182ce;
+      border-color: #667eea;
       background-color: #FFFFFF;
-      box-shadow: 0 0 0 2px rgba(49, 130, 206, 0.2);
+      box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
     }
     
     &:hover {
@@ -68,9 +68,9 @@ export const FormStyles = {
     
     &:focus {
       outline: none;
-      border-color: #3182ce;
+      border-color: #667eea;
       background-color: #FFFFFF;
-      box-shadow: 0 0 0 2px rgba(49, 130, 206, 0.2);
+      box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
     }
     
     &:hover {
@@ -90,9 +90,9 @@ export const FormStyles = {
     
     &:focus {
       outline: none;
-      border-color: #3182ce;
+      border-color: #667eea;
       background-color: #FFFFFF;
-      box-shadow: 0 0 0 2px rgba(49, 130, 206, 0.2);
+      box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2);
     }
     
     &:hover {
@@ -127,16 +127,23 @@ export const FormStyles = {
 
   SaveButton: styled.button`
     padding: 10px 20px;
-    background-color: #3182ce;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
     border: none;
     border-radius: 5px;
     font-weight: 600;
     cursor: pointer;
-    transition: background-color 0.2s;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
     
     &:hover {
-      background-color: #2c5282;
+      background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    }
+    
+    &:active {
+      transform: translateY(-1px);
     }
   `,
 
@@ -201,5 +208,13 @@ export const FormStyles = {
     svg {
       font-size: 1.2rem;
     }
+  `,
+
+  Tag: styled.span`
+    background-color: #f3e8ff;
+    color: #667eea;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 0.85rem;
   `
 };

@@ -8,7 +8,7 @@ const Container = styled.div`
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
   padding: 30px;
   margin: 20px 0;
-  border: 3px solid #3182ce;
+  border: 3px solid #667eea;
 `;
 
 const Title = styled.h2`
@@ -26,7 +26,7 @@ const Title = styled.h2`
     bottom: 0;
     width: 100%;
     height: 3px;
-    background-color: #3182ce;
+    background: linear-gradient(90deg, #667eea, #764ba2);
     border-radius: 2px;
   }
 `;
@@ -51,24 +51,56 @@ const EmptyStateText = styled.p`
 
 const AddButton = styled.button`
   padding: 12px 16px;
-  background-color: #4299e1;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
   border: none;
   border-radius: 8px;
   font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: all 0.3s ease;
   display: flex;
   align-items: center;
   gap: 8px;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
   
   &:hover {
-    background-color: #3182ce;
+    background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+  }
+  
+  &:active {
+    transform: translateY(-1px);
   }
   
   svg {
     width: 18px;
     height: 18px;
+  }
+`;
+
+const SaveButton = styled.button`
+  padding: 12px 16px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+  
+  &:hover {
+    background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+  }
+  
+  &:active {
+    transform: translateY(-1px);
   }
 `;
 
@@ -148,8 +180,8 @@ const TagsContainer = styled.div`
 `;
 
 const Tag = styled.span`
-  background-color: #ebf4ff;
-  color: #3182ce;
+  background-color: #f3e8ff;
+  color: #667eea;
   padding: 3px 8px;
   border-radius: 4px;
   font-size: 0.85rem;
@@ -311,7 +343,7 @@ const ProjectEditSection: React.FC<ProjectEditSectionProps> = ({ initialData, on
       
       {showProjectForm && (
         <div style={{ maxWidth: '1000px', margin: '0 auto', backgroundColor: '#fff', padding: '20px', borderRadius: '8px', boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}>
-          <h3 style={{ marginTop: '0', marginBottom: '20px', color: '#3182ce' }}>프로젝트 추가</h3>
+          <h3 style={{ marginTop: '0', marginBottom: '20px', color: '#667eea' }}>프로젝트 추가</h3>
           <ProjectForm 
             onSave={handleAddProject} 
             onCancel={() => setShowProjectForm(false)} 

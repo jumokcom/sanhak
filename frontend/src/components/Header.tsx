@@ -3,16 +3,52 @@ import styled from "styled-components";
 import KakaoLogin from "react-kakao-login";
 import { useNavigate, useLocation } from "react-router-dom";
 
-// 스타일 컴포넌트들 (기존 코드 그대로 유지)
+// 스타일 컴포넌트들 - 강화된 그림자로 포트폴리오 섹션과 구분
 const HeaderContainer = styled.header`
   height: 140px;
-  background-color: #3182ce;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0 70px;
   position: relative;
   z-index: 10;
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.2), /* 메인 그림자 강화 */
+    0 4px 16px rgba(0, 0, 0, 0.15), /* 중간 그림자 */
+    0 2px 8px rgba(0, 0, 0, 0.1); /* 미세 그림자 */
+  
+  &:before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: 
+      radial-gradient(circle at 20% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+      radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+      radial-gradient(circle at 40% 40%, rgba(255, 255, 255, 0.05) 0%, transparent 50%);
+    pointer-events: none;
+  }
+  
+  /* 하단 강조 오버레이로 경계 명확화 */
+  &:after {
+    content: "";
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, 
+      transparent 0%, 
+      rgba(0, 0, 0, 0.1) 20%,
+      rgba(0, 0, 0, 0.15) 50%, 
+      rgba(0, 0, 0, 0.1) 80%,
+      transparent 100%
+    );
+    filter: blur(2px);
+  }
 `;
 
 const BackButton = styled.button`
@@ -20,21 +56,40 @@ const BackButton = styled.button`
   top: 50%;
   left: 70px;
   transform: translateY(-50%);
-  background-color: white;
-  border: none;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
   border-radius: 50%;
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  color: #3182ce;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  transition: all 0.2s ease;
+  color: #667eea;
+  box-shadow: 
+    0 8px 25px rgba(0, 0, 0, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  transition: all 0.3s ease;
+  z-index: 100; /* z-index 높게 설정 */
+  pointer-events: auto; /* 명시적으로 클릭 가능하게 */
 
   &:hover {
-    transform: translateY(-50%) scale(1.1);
+    transform: translateY(-50%) scale(1.1) translateY(-2px);
+    box-shadow: 
+      0 12px 35px rgba(0, 0, 0, 0.2),
+      inset 0 1px 0 rgba(255, 255, 255, 0.9);
+    background: rgba(255, 255, 255, 1);
+  }
+  
+  &:active {
+    transform: translateY(-50%) scale(1.05);
+  }
+  
+  /* 터치 디바이스를 위한 추가 스타일 */
+  @media (hover: none) and (pointer: coarse) {
+    width: 50px;
+    height: 50px;
   }
 `;
 
@@ -43,18 +98,30 @@ const TitleContainer = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
+  z-index: 2;
+  position: relative;
 `;
 
 const Title = styled.h1`
   color: white;
   font-size: 2.5rem;
-  font-weight: bold;
+  font-weight: 800;
   cursor: pointer;
-  transition: all 0.2s ease-in-out;
-
+  transition: all 0.3s ease;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+  z-index: 2;
+  position: relative;
+  
   &:hover {
-    transform: scale(1.02);
-    text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+    transform: scale(1.03) translateY(-2px);
+    text-shadow: 
+      0 2px 10px rgba(0, 0, 0, 0.3),
+      0 0 20px rgba(255, 255, 255, 0.3);
+    filter: brightness(1.1);
+  }
+  
+  &:active {
+    transform: scale(1.01);
   }
 `;
 
@@ -62,6 +129,8 @@ const RightContainer = styled.div`
   display: flex;
   gap: 40px;
   align-items: center;
+  z-index: 2;
+  position: relative;
 `;
 
 const ProfileContainer = styled.div`
@@ -69,6 +138,18 @@ const ProfileContainer = styled.div`
   flex-direction: column;
   align-items: center;
   gap: 12px;
+  padding: 15px 20px;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: all 0.3s ease;
+  
+  &:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  }
 `;
 
 const ProfileImage = styled.img`
@@ -82,24 +163,61 @@ const ProfileImage = styled.img`
 const UserName = styled.div`
   color: white;
   font-size: 16px;
+  font-weight: 600;
+  text-shadow: 0 1px 5px rgba(0, 0, 0, 0.3);
+  text-align: center;
 `;
 
 const Button = styled.button<{ isKakao?: boolean }>`
-  background-color: ${(props) => (props.isKakao ? "#fee500" : "white")};
-  color: ${(props) => (props.isKakao ? "#000000" : "#333333")};
-  border: none;
-  border-radius: 5px;
-  height: 40px;
-  padding: 0 15px;
+  background: ${(props) => 
+    props.isKakao 
+      ? "linear-gradient(135deg, #fee500 0%, #ffde00 100%)" 
+      : "rgba(255, 255, 255, 0.95)"
+  };
+  backdrop-filter: blur(10px);
+  color: ${(props) => (props.isKakao ? "#000000" : "#667eea")};
+  border: ${(props) => 
+    props.isKakao 
+      ? "1px solid rgba(254, 229, 0, 0.3)" 
+      : "1px solid rgba(255, 255, 255, 0.3)"
+  };
+  border-radius: 12px;
+  height: 44px;
+  padding: 0 20px;
   cursor: pointer;
-  font-weight: ${(props) => (props.isKakao ? "bold" : "normal")};
+  font-weight: ${(props) => (props.isKakao ? "700" : "600")};
+  font-size: 14px;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: ${(props) => (props.isKakao ? "8px" : "0")};
+  transition: all 0.3s ease;
+  box-shadow: 
+    0 4px 15px ${(props) => 
+      props.isKakao 
+        ? "rgba(254, 229, 0, 0.3)" 
+        : "rgba(0, 0, 0, 0.1)"
+    },
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
 
   &:hover {
-    background-color: ${(props) => (props.isKakao ? "#ffde00" : "#f5f5f5")};
+    transform: translateY(-2px);
+    background: ${(props) => 
+      props.isKakao 
+        ? "linear-gradient(135deg, #ffde00 0%, #ffd700 100%)" 
+        : "rgba(255, 255, 255, 1)"
+    };
+    box-shadow: 
+      0 6px 20px ${(props) => 
+        props.isKakao 
+          ? "rgba(254, 229, 0, 0.4)" 
+          : "rgba(0, 0, 0, 0.15)"
+      },
+      inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  }
+  
+  &:active {
+    transform: translateY(-1px);
   }
 `;
 
@@ -393,14 +511,14 @@ const Header = () => {
           >
             <path
               d="M19 12H5"
-              stroke="#3182ce"
+              stroke="#667eea"
               strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"
             />
             <path
               d="M12 19L5 12L12 5"
-              stroke="#3182ce"
+              stroke="#667eea"
               strokeWidth="2"
               strokeLinecap="round"
               strokeLinejoin="round"

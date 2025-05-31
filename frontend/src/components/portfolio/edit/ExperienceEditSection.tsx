@@ -12,7 +12,7 @@ const Container = styled.div`
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
   padding: 30px;
   margin: 20px 0;
-  border: 3px solid #3182ce;
+  border: 3px solid #667eea;
 `;
 
 const Title = styled.h2`
@@ -30,7 +30,7 @@ const Title = styled.h2`
     bottom: 0;
     width: 100%;
     height: 3px;
-    background-color: #3182ce;
+    background: linear-gradient(90deg, #667eea, #764ba2);
     border-radius: 2px;
   }
 `;
@@ -45,15 +45,15 @@ const Tab = styled.button<{ active: boolean }>`
   padding: 12px 20px;
   background: none;
   border: none;
-  border-bottom: 3px solid ${(props) => (props.active ? "#3182ce" : "transparent")};
-  color: ${(props) => (props.active ? "#3182ce" : "#4a5568")};
+  border-bottom: 3px solid ${(props) => (props.active ? "#667eea" : "transparent")};
+  color: ${(props) => (props.active ? "#667eea" : "#4a5568")};
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
   
   &:hover {
-    color: #3182ce;
+    color: #667eea;
   }
 `;
 
@@ -79,19 +79,26 @@ const EmptyStateText = styled.p`
 
 const AddButton = styled.button`
   padding: 12px 16px;
-  background-color: #4299e1;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
   border: none;
   border-radius: 8px;
   font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.2s;
+  transition: all 0.3s ease;
   display: flex;
   align-items: center;
   gap: 8px;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
   
   &:hover {
-    background-color: #3182ce;
+    background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+  }
+  
+  &:active {
+    transform: translateY(-1px);
   }
   
   svg {

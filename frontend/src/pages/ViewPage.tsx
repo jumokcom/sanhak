@@ -285,7 +285,8 @@ const ViewPage = () => {
       id: lang.id ? parseInt(lang.id) : Date.now() + index,
       name: lang.language,
       level: lang.testName,
-      score: lang.score
+      score: lang.score,
+      date: lang.date
     }));
   };
   
@@ -330,6 +331,12 @@ const ViewPage = () => {
   // 휠 이벤트 처리
   useEffect(() => {
     const handleWheel = (event: WheelEvent) => {
+      // 클릭 가능한 요소나 버튼에서 이벤트가 발생한 경우 휠 스크롤 무시
+      const target = event.target as HTMLElement;
+      if (target.closest('button') || target.closest('a') || target.closest('[role="button"]')) {
+        return;
+      }
+      
       // 이벤트 전파 방지
       event.preventDefault();
 
@@ -408,10 +415,10 @@ const ViewPage = () => {
     };
   }, []);
 
-  // 뒤로가기 버튼 클릭 핸들러
-  const handleBackClick = () => {
-    navigate("/");
-  };
+  // 뒤로가기 버튼 클릭 핸들러 (사용하지 않지만 혹시 몰라 유지)
+  // const handleBackClick = () => {
+  //   navigate("/");
+  // };
 
   if (loading) {
     return (

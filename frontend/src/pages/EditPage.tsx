@@ -38,15 +38,15 @@ const Tab = styled.button<{ active: boolean }>`
   background: none;
   border: none;
   border-bottom: 3px solid
-    ${(props) => (props.active ? "#3182ce" : "transparent")};
-  color: ${(props) => (props.active ? "#3182ce" : "#4a5568")};
+    ${(props) => (props.active ? "#667eea" : "transparent")};
+  color: ${(props) => (props.active ? "#667eea" : "#4a5568")};
   font-size: 1.1rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
 
   &:hover {
-    color: #3182ce;
+    color: #667eea;
   }
 `;
 
@@ -76,12 +76,20 @@ const CancelButton = styled(Button)`
 `;
 
 const SaveButton = styled(Button)`
-  background-color: #3182ce;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
   border: none;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+  transition: all 0.3s ease;
 
   &:hover {
-    background-color: #2c5282;
+    background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+  }
+  
+  &:active {
+    transform: translateY(-1px);
   }
 `;
 

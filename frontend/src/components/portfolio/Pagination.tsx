@@ -5,38 +5,164 @@ import styled from "styled-components";
 const PaginationContainer = styled.div`
   display: flex;
   justify-content: center;
-  margin-top: 10px; /* 20px에서 10px로 줄임 */
-  gap: 8px;
-  padding: 10px; /* 15px에서 10px로 줄임 */
-  background-color: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  gap: 6px; /* 8px에서 6px로 줄임 */
+  padding: 15px; /* 20px에서 15px로 줄임 */
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  box-shadow: 
+    0 8px 25px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.3);
   max-width: fit-content;
-  margin-left: auto;
-  margin-right: auto;
+  margin: 0 auto;
+  overflow-x: auto;
+  overflow-y: hidden;
+  box-sizing: border-box;
+  
+  /* 스크롤바 숨기기 */
+  &::-webkit-scrollbar {
+    display: none;
+  }
+  
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  
+  /* 모바일에서 버튼 크기 조정 */
+  @media (max-width: 480px) {
+    gap: 4px;
+    padding: 12px;
+  }
 `;
 
 // 페이지 버튼 스타일
 const PageButton = styled.button<{ active?: boolean }>`
-  width: 32px; /* 36px에서 32px로 줄임 */
-  height: 32px; /* 36px에서 32px로 줄임 */
-  border-radius: 4px;
-  background-color: ${props => props.active ? '#1a202c' : 'white'};
-  color: ${props => props.active ? 'white' : '#1a202c'};
-  border: 1px solid ${props => props.active ? '#1a202c' : '#e2e8f0'};
+  width: 36px; /* 40px에서 36px로 줄임 */
+  height: 36px; /* 40px에서 36px로 줄임 */
+  border-radius: 10px;
+  background: ${props => props.active 
+    ? 'linear-gradient(135deg, #764ba2 0%, #667eea 100%)' 
+    : 'rgba(255, 255, 255, 0.8)'
+  };
+  color: ${props => props.active ? 'white' : '#475569'};
+  border: 1px solid ${props => props.active 
+    ? 'transparent' 
+    : 'rgba(148, 163, 184, 0.3)'
+  };
   cursor: pointer;
-  font-weight: ${props => props.active ? '600' : 'normal'};
-  transition: all 0.2s ease;
-  box-shadow: ${props => props.active ? '0 2px 4px rgba(0, 0, 0, 0.1)' : 'none'};
+  font-weight: ${props => props.active ? '700' : '500'};
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem; /* 0.9rem에서 0.85rem로 줄임 */
+  position: relative;
+  overflow: hidden;
+  box-sizing: border-box;
+  
+  /* 모바일에서 더 작게 */
+  @media (max-width: 480px) {
+    width: 32px;
+    height: 32px;
+    font-size: 0.8rem;
+  }
+  
+  &:before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transition: left 0.5s ease;
+  }
   
   &:hover {
-    background-color: ${props => props.active ? '#1a202c' : '#f8f9fa'};
-    border-color: ${props => props.active ? '#1a202c' : '#cbd5e0'};
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    background: ${props => props.active 
+      ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' 
+      : 'rgba(255, 255, 255, 0.95)'
+    };
+    border-color: ${props => props.active 
+      ? 'transparent' 
+      : 'rgba(118, 75, 162, 0.3)'
+    };
+    transform: translateY(-2px);
+    box-shadow: 
+      0 6px 15px rgba(0, 0, 0, 0.1), /* 사이즈 줄임 */
+      ${props => props.active 
+        ? '0 3px 10px rgba(118, 75, 162, 0.3)' 
+        : '0 3px 10px rgba(0, 0, 0, 0.08)'
+      };
+  }
+  
+  &:hover:before {
+    left: 100%;
+  }
+  
+  &:active {
+    transform: translateY(0);
+    box-shadow: 
+      0 2px 6px rgba(0, 0, 0, 0.08),
+      ${props => props.active 
+        ? '0 1px 4px rgba(118, 75, 162, 0.2)' 
+        : '0 1px 4px rgba(0, 0, 0, 0.04)'
+      };
   }
   
   &:focus {
     outline: none;
+  }
+  
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+    
+    &:hover {
+      transform: none;
+      box-shadow: none;
+    }
+  }
+`;
+
+// 네비게이션 버튼 (이전/다음)
+const NavButton = styled(PageButton)`
+  width: 40px; /* 44px에서 40px로 줄임 */
+  font-size: 0.9rem; /* 1rem에서 0.9rem로 줄임 */
+  font-weight: 600;
+  
+  @media (max-width: 480px) {
+    width: 32px;
+    font-size: 0.8rem;
+  }
+  
+  svg {
+    width: 14px; /* 16px에서 14px로 줄임 */
+    height: 14px;
+    transition: transform 0.3s ease;
+  }
+  
+  &:hover svg {
+    transform: ${props => props.children?.toString().includes('‹') ? 'translateX(-2px)' : 'translateX(2px)'};
+  }
+`;
+
+// 생략 인디케이터
+const EllipsisIndicator = styled.div`
+  width: 36px; /* 40px에서 36px로 줄임 */
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #64748b;
+  font-weight: 600;
+  font-size: 1rem; /* 1.1rem에서 1rem로 줄임 */
+  
+  @media (max-width: 480px) {
+    width: 32px;
+    height: 32px;
+    font-size: 0.9rem;
   }
 `;
 
@@ -47,7 +173,7 @@ interface PaginationProps {
 }
 
 const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPageChange }) => {
-  // 표시할 페이지 버튼 수 설정 (예: 최대 5개)
+  // 표시할 페이지 버튼 수 설정
   const maxPageButtons = 5;
   let startPage = Math.max(1, currentPage - Math.floor(maxPageButtons / 2));
   let endPage = Math.min(totalPages, startPage + maxPageButtons - 1);
@@ -62,14 +188,34 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPage
     (_, i) => startPage + i
   );
 
+  // 첫 페이지와 마지막 페이지 생략 여부 확인
+  const showStartEllipsis = startPage > 2;
+  const showEndEllipsis = endPage < totalPages - 1;
+
   return (
     <PaginationContainer>
       {/* 이전 페이지 버튼 */}
-      {currentPage > 1 && (
-        <PageButton onClick={() => onPageChange(currentPage - 1)}>
-          &lt;
+      <NavButton 
+        onClick={() => onPageChange(currentPage - 1)}
+        disabled={currentPage === 1}
+      >
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <polyline points="15,18 9,12 15,6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      </NavButton>
+      
+      {/* 첫 페이지 */}
+      {startPage > 1 && (
+        <PageButton
+          active={1 === currentPage}
+          onClick={() => onPageChange(1)}
+        >
+          1
         </PageButton>
       )}
+      
+      {/* 시작 생략 */}
+      {showStartEllipsis && <EllipsisIndicator>⋯</EllipsisIndicator>}
       
       {/* 페이지 번호 버튼 */}
       {pageNumbers.map(page => (
@@ -82,12 +228,28 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPage
         </PageButton>
       ))}
       
-      {/* 다음 페이지 버튼 */}
-      {currentPage < totalPages && (
-        <PageButton onClick={() => onPageChange(currentPage + 1)}>
-          &gt;
+      {/* 끝 생략 */}
+      {showEndEllipsis && <EllipsisIndicator>⋯</EllipsisIndicator>}
+      
+      {/* 마지막 페이지 */}
+      {endPage < totalPages && (
+        <PageButton
+          active={totalPages === currentPage}
+          onClick={() => onPageChange(totalPages)}
+        >
+          {totalPages}
         </PageButton>
       )}
+      
+      {/* 다음 페이지 버튼 */}
+      <NavButton 
+        onClick={() => onPageChange(currentPage + 1)}
+        disabled={currentPage === totalPages}
+      >
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <polyline points="9,18 15,12 9,6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      </NavButton>
     </PaginationContainer>
   );
 };
