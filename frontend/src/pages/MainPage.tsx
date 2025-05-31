@@ -80,6 +80,16 @@ const MainPage = () => {
     useRef<HTMLDivElement>(null),
   ];
 
+  // Keep-Alive: 10분마다 백엔드 핑 (발표용)
+  useEffect(() => {
+    const keepAlive = setInterval(() => {
+      fetch('https://sanhak-backend.onrender.com/api/portfolios')
+        .catch(() => console.log('Keep-alive ping'));
+    }, 10 * 60 * 1000); // 10분
+
+    return () => clearInterval(keepAlive);
+  }, []);
+
   // 포트폴리오 데이터 로드
   useEffect(() => {
     loadPortfolios();
