@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
+import { generatePortfolioPDF } from "../../utils/pdfGenerator";
 
 // 포트폴리오 카드 스타일
 const CardContainer = styled.div`
@@ -142,7 +143,7 @@ const DropdownMenu = styled.div<{ isOpen: boolean }>`
   position: absolute;
   top: 40px;
   right: 8px;
-  width: 130px;
+  width: 140px; /* 너비 약간 증가 */
   background-color: white;
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
@@ -237,6 +238,34 @@ const EditIcon = styled.div`
     height: 2px;
     background-color: currentColor;
     transform: rotate(45deg);
+  }
+`;
+
+// PDF 아이콘
+const PdfIcon = styled.div`
+  width: 14px;
+  height: 14px;
+  position: relative;
+  
+  &:before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 10px;
+    height: 14px;
+    border: 1.5px solid currentColor;
+    border-radius: 1px;
+  }
+  
+  &:after {
+    content: "PDF";
+    position: absolute;
+    top: 3px;
+    left: 1px;
+    font-size: 5px;
+    font-weight: bold;
+    line-height: 1;
   }
 `;
 
@@ -384,6 +413,20 @@ const PortfolioCard: React.FC<PortfolioCardProps> = ({
     }
   };
 
+  // PDF 저장 기능 처리
+  const handleDownloadPdf = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsDropdownOpen(false);
+    
+    try {
+      console.log('PDF 다운로드 시작:', id);
+      await generatePortfolioPDF(id);
+    } catch (error) {
+      console.error('PDF 다운로드 실패:', error);
+      alert('PDF 다운로드에 실패했습니다.');
+    }
+  };
+
   return (
     <CardContainer onClick={handleCardClick}>
       {editable && (
@@ -402,6 +445,12 @@ const PortfolioCard: React.FC<PortfolioCardProps> = ({
                 <EditIcon />
               </IconContainer>
               수정
+            </DropdownItem>
+            <DropdownItem onClick={handleDownloadPdf}>
+              <IconContainer>
+                <PdfIcon />
+              </IconContainer>
+              PDF 저장
             </DropdownItem>
             <DropdownItem onClick={handleDelete}>
               <IconContainer>
