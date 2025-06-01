@@ -26,25 +26,58 @@ export class CloudinaryService {
   ): Promise<string> {
     try {
       this.logger.log(`📤 이미지 업로드 시작: ${file.originalname}`);
+      this.logger.log(`📊 파일 사이즈: ${(file.size / 1024 / 1024).toFixed(2)}MB`);
+      this.logger.log(`🎨 MIME 타입: ${file.mimetype}`);
 
+      // Buffer 확인
+      if (!file.buffer) {
+        throw new Error('파일 버퍼가 없습니다.');
+      }
+      this.logger.log(`💾 버퍼 크기: ${file.buffer.length} bytes`);
+
+      // Cloudinary 설정 확인
+      const config = cloudinary.config();
+      this.logger.log(`🌐 Cloudinary Cloud Name: ${config.cloud_name}`);
+      this.logger.log(`🔑 API Key: ${config.api_key ? 'SET' : 'NOT SET'}`);
+      this.logger.log(`🔐 API Secret: ${config.api_secret ? 'SET' : 'NOT SET'}`);
+
+      this.logger.log('🚀 Cloudinary 업로드 시도 중...');
+      
+      // 전체 Base64 문자열 길이 확인
+      const base64Data = file.buffer.toString('base64');
+      this.logger.log(`📊 Base64 데이터 길이: ${base64Data.length} characters`);
+      
       const result = await cloudinary.uploader.upload(
-        `data:${file.mimetype};base64,${file.buffer.toString('base64')}`,
+        `data:${file.mimetype};base64,${base64Data}`,
         {
           folder: `sanhak/${folder}`,
           resource_type: 'image',
-          transformation: [
-            { width: 800, height: 800, crop: 'limit' }, // 최대 크기 제한
-            { quality: 'auto:good' }, // 자동 품질 최적화
-            { format: 'auto' }, // 자동 포맷 선택
-          ],
+          // 일단 변환 비활성화하여 테스트
+          // transformation: [
+          //   { width: 800, height: 800, crop: 'limit' },
+          //   { quality: 'auto:good' },
+          //   { format: 'auto' },
+          // ],
         }
       );
 
       this.logger.log(`✅ 이미지 업로드 성공: ${result.secure_url}`);
+      this.logger.log(`🆔 Public ID: ${result.public_id}`);
       return result.secure_url;
     } catch (error) {
-      this.logger.error(`❌ 이미지 업로드 실패: ${error.message}`);
-      throw new Error('이미지 업로드에 실패했습니다.');
+      this.logger.error(`❌ 이미지 업로드 실패`);
+      this.logger.error(`💬 에러 메시지: ${error?.message || 'Unknown error'}`);
+      this.logger.error(`🔍 에러 코드: ${error?.http_code || 'No code'}`);
+      this.logger.error(`🌐 에러 상세: ${JSON.stringify({
+        name: error?.name,
+        message: error?.message,
+        http_code: error?.http_code,
+        error: error?.error
+      }, null, 2)}`);
+      
+      // 에러 메시지를 명확하게 전달
+      const errorMessage = error?.message || error?.error?.message || '알 수 없는 오류가 발생했습니다';
+      throw new Error(`Cloudinary 업로드 실패: ${errorMessage}`);
     }
   }
 
