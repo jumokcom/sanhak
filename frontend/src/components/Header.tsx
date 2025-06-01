@@ -13,11 +13,10 @@ const HeaderContainer = styled.header`
   padding: 0 70px;
   position: relative;
   z-index: 10;
-  box-shadow: 
-    0 8px 32px rgba(0, 0, 0, 0.2), /* 메인 그림자 강화 */
-    0 4px 16px rgba(0, 0, 0, 0.15), /* 중간 그림자 */
-    0 2px 8px rgba(0, 0, 0, 0.1); /* 미세 그림자 */
-  
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2),
+    /* 메인 그림자 강화 */ 0 4px 16px rgba(0, 0, 0, 0.15),
+    /* 중간 그림자 */ 0 2px 8px rgba(0, 0, 0, 0.1); /* 미세 그림자 */
+
   &:before {
     content: "";
     position: absolute;
@@ -25,13 +24,24 @@ const HeaderContainer = styled.header`
     left: 0;
     right: 0;
     bottom: 0;
-    background: 
-      radial-gradient(circle at 20% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
-      radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
-      radial-gradient(circle at 40% 40%, rgba(255, 255, 255, 0.05) 0%, transparent 50%);
+    background: radial-gradient(
+        circle at 20% 80%,
+        rgba(255, 255, 255, 0.1) 0%,
+        transparent 50%
+      ),
+      radial-gradient(
+        circle at 80% 20%,
+        rgba(255, 255, 255, 0.1) 0%,
+        transparent 50%
+      ),
+      radial-gradient(
+        circle at 40% 40%,
+        rgba(255, 255, 255, 0.05) 0%,
+        transparent 50%
+      );
     pointer-events: none;
   }
-  
+
   /* 하단 강조 오버레이로 경계 명확화 */
   &:after {
     content: "";
@@ -40,10 +50,11 @@ const HeaderContainer = styled.header`
     left: 0;
     right: 0;
     height: 4px;
-    background: linear-gradient(90deg, 
-      transparent 0%, 
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
       rgba(0, 0, 0, 0.1) 20%,
-      rgba(0, 0, 0, 0.15) 50%, 
+      rgba(0, 0, 0, 0.15) 50%,
       rgba(0, 0, 0, 0.1) 80%,
       transparent 100%
     );
@@ -67,8 +78,7 @@ const BackButton = styled.button`
   justify-content: center;
   cursor: pointer;
   color: #667eea;
-  box-shadow: 
-    0 8px 25px rgba(0, 0, 0, 0.15),
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15),
     inset 0 1px 0 rgba(255, 255, 255, 0.8);
   transition: all 0.3s ease;
   z-index: 100; /* z-index 높게 설정 */
@@ -76,16 +86,15 @@ const BackButton = styled.button`
 
   &:hover {
     transform: translateY(-50%) scale(1.1) translateY(-2px);
-    box-shadow: 
-      0 12px 35px rgba(0, 0, 0, 0.2),
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.2),
       inset 0 1px 0 rgba(255, 255, 255, 0.9);
     background: rgba(255, 255, 255, 1);
   }
-  
+
   &:active {
     transform: translateY(-50%) scale(1.05);
   }
-  
+
   /* 터치 디바이스를 위한 추가 스타일 */
   @media (hover: none) and (pointer: coarse) {
     width: 50px;
@@ -111,15 +120,14 @@ const Title = styled.h1`
   text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
   z-index: 2;
   position: relative;
-  
+
   &:hover {
     transform: scale(1.03) translateY(-2px);
-    text-shadow: 
-      0 2px 10px rgba(0, 0, 0, 0.3),
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3),
       0 0 20px rgba(255, 255, 255, 0.3);
     filter: brightness(1.1);
   }
-  
+
   &:active {
     transform: scale(1.01);
   }
@@ -144,7 +152,7 @@ const ProfileContainer = styled.div`
   border-radius: 16px;
   border: 1px solid rgba(255, 255, 255, 0.2);
   transition: all 0.3s ease;
-  
+
   &:hover {
     background: rgba(255, 255, 255, 0.2);
     transform: translateY(-2px);
@@ -169,18 +177,16 @@ const UserName = styled.div`
 `;
 
 const Button = styled.button<{ isKakao?: boolean }>`
-  background: ${(props) => 
-    props.isKakao 
-      ? "linear-gradient(135deg, #fee500 0%, #ffde00 100%)" 
-      : "rgba(255, 255, 255, 0.95)"
-  };
+  background: ${(props) =>
+    props.isKakao
+      ? "linear-gradient(135deg, #fee500 0%, #ffde00 100%)"
+      : "rgba(255, 255, 255, 0.95)"};
   backdrop-filter: blur(10px);
   color: ${(props) => (props.isKakao ? "#000000" : "#667eea")};
-  border: ${(props) => 
-    props.isKakao 
-      ? "1px solid rgba(254, 229, 0, 0.3)" 
-      : "1px solid rgba(255, 255, 255, 0.3)"
-  };
+  border: ${(props) =>
+    props.isKakao
+      ? "1px solid rgba(254, 229, 0, 0.3)"
+      : "1px solid rgba(255, 255, 255, 0.3)"};
   border-radius: 12px;
   height: 44px;
   padding: 0 20px;
@@ -192,30 +198,23 @@ const Button = styled.button<{ isKakao?: boolean }>`
   justify-content: center;
   gap: ${(props) => (props.isKakao ? "8px" : "0")};
   transition: all 0.3s ease;
-  box-shadow: 
-    0 4px 15px ${(props) => 
-      props.isKakao 
-        ? "rgba(254, 229, 0, 0.3)" 
-        : "rgba(0, 0, 0, 0.1)"
-    },
+  box-shadow: 0 4px 15px
+      ${(props) =>
+        props.isKakao ? "rgba(254, 229, 0, 0.3)" : "rgba(0, 0, 0, 0.1)"},
     inset 0 1px 0 rgba(255, 255, 255, 0.6);
 
   &:hover {
     transform: translateY(-2px);
-    background: ${(props) => 
-      props.isKakao 
-        ? "linear-gradient(135deg, #ffde00 0%, #ffd700 100%)" 
-        : "rgba(255, 255, 255, 1)"
-    };
-    box-shadow: 
-      0 6px 20px ${(props) => 
-        props.isKakao 
-          ? "rgba(254, 229, 0, 0.4)" 
-          : "rgba(0, 0, 0, 0.15)"
-      },
+    background: ${(props) =>
+      props.isKakao
+        ? "linear-gradient(135deg, #ffde00 0%, #ffd700 100%)"
+        : "rgba(255, 255, 255, 1)"};
+    box-shadow: 0 6px 20px
+        ${(props) =>
+          props.isKakao ? "rgba(254, 229, 0, 0.4)" : "rgba(0, 0, 0, 0.15)"},
       inset 0 1px 0 rgba(255, 255, 255, 0.8);
   }
-  
+
   &:active {
     transform: translateY(-1px);
   }
@@ -240,11 +239,12 @@ const KakaoLogo = () => (
 );
 
 // API 엔드포인트
-const API_BASE_URL = process.env.NODE_ENV === 'production' 
-  ? process.env.REACT_APP_API_URL || 'https://sanhak-backend.onrender.com/api'
-  : 'http://localhost:3001/api';
+const API_BASE_URL =
+  process.env.NODE_ENV === "production"
+    ? process.env.REACT_APP_API_URL || "https://sanhak-backend.onrender.com/api"
+    : "http://localhost:3001/api";
 
-console.log('헤더 API_BASE_URL:', API_BASE_URL);
+console.log("헤더 API_BASE_URL:", API_BASE_URL);
 
 // 백엔드 API 함수들
 const api = {
@@ -527,7 +527,7 @@ const Header = () => {
         </BackButton>
       )}
       <TitleContainer>
-        <Title onClick={handleTitleClick}>포트폴리오 관리</Title>
+        <Title onClick={handleTitleClick}>Purange Portfolio</Title>
       </TitleContainer>
       <RightContainer>
         {isLogin ? (
