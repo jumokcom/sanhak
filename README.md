@@ -21,6 +21,7 @@
 ## 🛠️ 기술 스택
 
 ### Frontend
+
 - **React 19** - UI 라이브러리
 - **TypeScript** - 타입 안전성
 - **Styled Components** - CSS-in-JS
@@ -28,6 +29,7 @@
 - **html2canvas + jsPDF** - PDF 생성
 
 ### Backend
+
 - **NestJS** - Node.js 프레임워크
 - **TypeORM** - ORM
 - **PostgreSQL** - 데이터베이스
@@ -36,6 +38,7 @@
 - **Multer** - 파일 업로드
 
 ### DevOps & Deployment
+
 - **Render** - 호스팅
 - **GitHub Actions** - CI/CD 및 Keep-Alive
 - **PostgreSQL Cloud** - 데이터베이스 호스팅
@@ -70,12 +73,14 @@ sanhak/
 ## 🚦 설치 및 실행
 
 ### 1. 저장소 클론
+
 ```bash
 git clone <repository-url>
 cd sanhak
 ```
 
 ### 2. 백엔드 설정
+
 ```bash
 cd backend
 npm install
@@ -89,6 +94,7 @@ npm run start:dev
 ```
 
 ### 3. 프론트엔드 설정
+
 ```bash
 cd frontend
 npm install
@@ -103,6 +109,7 @@ npm start
 ## 🌍 배포
 
 ### Backend (Render)
+
 1. Render에 GitHub 연결
 2. Build Command: `npm install && npm run build`
 3. Start Command: `npm run start:prod`
@@ -113,6 +120,7 @@ npm start
    - `KAKAO_CALLBACK_URL`
 
 ### Frontend (Render/Netlify/Vercel)
+
 1. Build Command: `npm run build`
 2. Publish Directory: `build`
 3. 환경변수 설정:
@@ -136,10 +144,12 @@ npm start
 ## 🔑 API 엔드포인트
 
 ### 인증
+
 - `POST /api/auth/kakao` - 카카오 로그인
 - `GET /api/auth/profile` - 사용자 프로필
 
 ### 포트폴리오
+
 - `GET /api/portfolios` - 모든 포트폴리오 조회
 - `GET /api/portfolios/my` - 내 포트폴리오 조회
 - `POST /api/portfolios` - 포트폴리오 생성
@@ -147,6 +157,7 @@ npm start
 - `DELETE /api/portfolios/:id` - 포트폴리오 삭제
 
 ### Keep-Alive
+
 - `GET /health` - 서버 상태 확인
 - `GET /keep-alive` - Keep-Alive 엔드포인트
 
@@ -158,15 +169,11 @@ npm start
 4. Push to the Branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
-## 📝 라이선스
-
-이 프로젝트는 MIT 라이선스 하에 있습니다.
-
 ## 👥 팀
 
-- **개발자**: [이름]
-- **지도교수**: [교수님 이름]
-- **산업체**: [회사 이름]
+- **개발자**: [고재우]
+- **지도교수**: [김상현 교수님]
+- **강의명**: [산학협력프로젝트]
 
 ## 📞 문의
 
