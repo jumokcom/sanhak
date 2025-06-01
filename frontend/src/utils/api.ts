@@ -3,6 +3,11 @@ const API_BASE_URL = process.env.NODE_ENV === 'production'
   ? 'https://sanhak-backend.onrender.com/api'
   : 'http://localhost:3001/api';
 
+// Keep-Alive를 위한 베이스 URL (api prefix 없음)
+const BASE_URL = process.env.NODE_ENV === 'production' 
+  ? 'https://sanhak-backend.onrender.com'
+  : 'http://localhost:3001';
+
 console.log('API_BASE_URL:', API_BASE_URL);
 console.log('NODE_ENV:', process.env.NODE_ENV);
 console.log('REACT_APP_API_URL:', process.env.REACT_APP_API_URL);
@@ -80,4 +85,35 @@ export const portfolioApi = {
     apiCall(`/portfolios/${id}`, {
       method: 'DELETE',
     }),
+};
+
+// Keep-Alive API
+export const keepAliveApi = {
+  // 서버 상태 확인
+  healthCheck: async () => {
+    try {
+      const response = await fetch(`${BASE_URL}/health`);
+      if (response.ok) {
+        return await response.json();
+      }
+      throw new Error('Health check failed');
+    } catch (error) {
+      console.error('Health check error:', error);
+      throw error;
+    }
+  },
+
+  // Keep-Alive 핑
+  ping: async () => {
+    try {
+      const response = await fetch(`${BASE_URL}/keep-alive`);
+      if (response.ok) {
+        return await response.json();
+      }
+      throw new Error('Keep-alive ping failed');
+    } catch (error) {
+      console.error('Keep-alive ping error:', error);
+      throw error;
+    }
+  },
 };

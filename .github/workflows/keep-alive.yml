@@ -1,0 +1,80 @@
+name: Keep Render Server Alive
+
+on:
+  schedule:
+    # 10분마다 실행 (렌더 무료플랜 15분 제한보다 짧게)
+    - cron: '*/10 * * * *'
+  
+  # 수동 실행도 가능하게
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: 'Reason for manual trigger'
+        required: false
+        default: 'Manual keep-alive'
+
+jobs:
+  keep-alive:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 📅 Log execution time
+      run: |
+        echo "Keep-alive job started at: $(date)"
+        echo "Timezone: $(timedatectl show --property=Timezone --value 2>/dev/null || echo 'UTC')"
+    
+    - name: 🏓 Ping backend server
+      run: |
+        echo "Pinging backend server..."
+        response=$(curl -s -w "\n%{http_code}" https://sanhak-backend.onrender.com/keep-alive)
+        http_code=$(echo "$response" | tail -n1)
+        body=$(echo "$response" | head -n -1)
+        
+        echo "Response body: $body"
+        echo "HTTP status: $http_code"
+        
+        if [ "$http_code" -eq 200 ]; then
+          echo "✅ Backend keep-alive successful!"
+        else
+          echo "❌ Backend keep-alive failed with status: $http_code"
+          exit 1
+        fi
+    
+    - name: 🔍 Check backend health
+      run: |
+        echo "Checking backend health..."
+        response=$(curl -s -w "\n%{http_code}" https://sanhak-backend.onrender.com/health)
+        http_code=$(echo "$response" | tail -n1)
+        body=$(echo "$response" | head -n -1)
+        
+        echo "Health check response: $body"
+        echo "HTTP status: $http_code"
+        
+        if [ "$http_code" -eq 200 ]; then
+          echo "✅ Backend health check passed!"
+        else
+          echo "❌ Backend health check failed with status: $http_code"
+          exit 1
+        fi
+    
+    - name: 🌐 Ping frontend (if deployed to Render)
+      run: |
+        echo "Pinging frontend..."
+        # 프론트엔드 URL을 실제 배포 URL로 변경하세요
+        frontend_url="https://sanhak.onrender.com"
+        
+        response=$(curl -s -w "\n%{http_code}" "$frontend_url")
+        http_code=$(echo "$response" | tail -n1)
+        
+        echo "Frontend HTTP status: $http_code"
+        
+        if [ "$http_code" -eq 200 ]; then
+          echo "✅ Frontend ping successful!"
+        else
+          echo "⚠️ Frontend ping failed with status: $http_code (this might be normal if not deployed to Render)"
+        fi
+    
+    - name: 📊 Summary
+      run: |
+        echo "🎉 Keep-alive job completed successfully!"
+        echo "Next execution in ~10 minutes"

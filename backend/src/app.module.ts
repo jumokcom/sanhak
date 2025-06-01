@@ -8,6 +8,7 @@ import { UsersModule } from './users/users.module';
 import { PortfoliosModule } from './portfolios/portfolios.module';
 import { User } from './users/entities/user.entity';
 import { Portfolio } from './portfolios/entities/portfolio.entity';
+import { KeepAliveService } from './keep-alive.service';
 
 @Module({
   imports: [
@@ -44,7 +45,7 @@ import { Portfolio } from './portfolios/entities/portfolio.entity';
     PortfoliosModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, KeepAliveService],
 })
 export class AppModule {
   constructor(private configService: ConfigService) {
