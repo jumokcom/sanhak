@@ -7,12 +7,42 @@ export class CloudinaryService {
   private readonly logger = new Logger(CloudinaryService.name);
 
   constructor(private configService: ConfigService) {
+    // 환경변수 값 직접 확인
+    const cloudName = this.configService.get('CLOUDINARY_CLOUD_NAME');
+    const apiKey = this.configService.get('CLOUDINARY_API_KEY');
+    const apiSecret = this.configService.get('CLOUDINARY_API_SECRET');
+
+    this.logger.log(`🔍 환경변수 확인:`);
+    this.logger.log(`- CLOUDINARY_CLOUD_NAME: ${cloudName || 'NOT FOUND'}`);
+    this.logger.log(`- CLOUDINARY_API_KEY: ${apiKey ? 'SET' : 'NOT FOUND'}`);
+    this.logger.log(`- CLOUDINARY_API_SECRET: ${apiSecret ? 'SET' : 'NOT FOUND'}`);
+
+    if (!cloudName || !apiKey || !apiSecret) {
+      this.logger.error('❌ Cloudinary 환경변수가 설정되지 않았습니다!');
+      this.logger.error('필요한 환경변수: CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET');
+    }
+
+    // 임시로 하드코딩된 값으로 테스트 (개발용)
+    const hardcodedConfig = {
+      cloud_name: 'dfhiwmcs7',
+      api_key: '683155572312913',
+      api_secret: 'f-YM_QmjsuzcTekkE1hSxmKJmSE'
+    };
+
+    // 환경변수에서 가져오거나 하드코딩된 값 사용
+    const finalConfig = {
+      cloud_name: cloudName || hardcodedConfig.cloud_name,
+      api_key: apiKey || hardcodedConfig.api_key,
+      api_secret: apiSecret || hardcodedConfig.api_secret,
+    };
+
+    this.logger.log(`🛠️ 최종 설정:`);
+    this.logger.log(`- Cloud Name: ${finalConfig.cloud_name}`);
+    this.logger.log(`- API Key: ${finalConfig.api_key ? 'SET' : 'NOT SET'}`);
+    this.logger.log(`- API Secret: ${finalConfig.api_secret ? 'SET' : 'NOT SET'}`);
+
     // Cloudinary 설정
-    cloudinary.config({
-      cloud_name: this.configService.get('CLOUDINARY_CLOUD_NAME'),
-      api_key: this.configService.get('CLOUDINARY_API_KEY'),
-      api_secret: this.configService.get('CLOUDINARY_API_SECRET'),
-    });
+    cloudinary.config(finalConfig);
 
     this.logger.log('🌤️ Cloudinary 서비스 초기화 완료');
   }
