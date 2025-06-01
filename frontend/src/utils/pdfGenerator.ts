@@ -1,7 +1,66 @@
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 
-// 포트폴리오 데이터 타입 정의
+// 이미지 로딩을 보장하는 함수
+const waitForImagesToLoad = async (element: HTMLElement): Promise<void> => {
+  const images = element.querySelectorAll('img');
+  const imagePromises = Array.from(images).map((img) => {
+    return new Promise<void>((resolve) => {
+      if (img.complete) {
+        resolve();
+      } else {
+        img.onload = () => resolve();
+        img.onerror = () => resolve(); // 에러가 나도 계속 진행
+      }
+    });
+  });
+  
+  await Promise.all(imagePromises);
+  // 추가 대기 시간 (이미지 렌더링 완료 보장)
+  await new Promise(resolve => setTimeout(resolve, 500));
+};
+
+// 이미지를 Base64로 변환하는 함수
+const convertImageToBase64 = async (imageUrl: string): Promise<string> => {
+  try {
+    // 이미지 URL이 data: 또는 blob:으로 시작하면 그대로 반환
+    if (imageUrl.startsWith('data:') || imageUrl.startsWith('blob:')) {
+      return imageUrl;
+    }
+
+    // Canvas를 사용해서 이미지를 Base64로 변환
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.crossOrigin = 'anonymous'; // CORS 문제 해결
+      
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        canvas.width = img.width;
+        canvas.height = img.height;
+        
+        if (ctx) {
+          ctx.drawImage(img, 0, 0);
+          const base64 = canvas.toDataURL('image/jpeg', 0.8);
+          resolve(base64);
+        } else {
+          reject(new Error('Canvas context not available'));
+        }
+      };
+      
+      img.onerror = () => {
+        console.warn('이미지 로드 실패, 기본 이미지 사용:', imageUrl);
+        resolve(imageUrl); // 실패해도 원본 URL 반환
+      };
+      
+      img.src = imageUrl;
+    });
+  } catch (error) {
+    console.warn('이미지 변환 실패:', error);
+    return imageUrl; // 실패시 원본 URL 반환
+  }
+};
 interface PortfolioData {
   id: string;
   title: string;
@@ -68,7 +127,17 @@ interface PortfolioData {
 }
 
 // 이력서 HTML 템플릿 생성 (이미지와 완전히 동일한 형태)
-const createResumeHTML = (data: PortfolioData): string => {
+const createResumeHTML = async (data: PortfolioData): Promise<string> => {
+  // 프로필 이미지를 Base64로 변환
+  let profileImageBase64 = '';
+  if (data.profile.image) {
+    try {
+      profileImageBase64 = await convertImageToBase64(data.profile.image);
+      console.log('프로필 이미지 변환 성공:', profileImageBase64.substring(0, 50) + '...');
+    } catch (error) {
+      console.warn('프로필 이미지 변환 실패:', error);
+    }
+  }
   const calculateAge = (birthDate: string) => {
     if (!birthDate) return '';
     const today = new Date();
@@ -135,10 +204,11 @@ const createResumeHTML = (data: PortfolioData): string => {
             align-items: center;
             justify-content: center;
           ">
-            ${data.profile.image ? `
-              <img src="${data.profile.image}" 
+            ${profileImageBase64 ? `
+              <img src="${profileImageBase64}" 
                    style="width: 100%; height: 100%; object-fit: cover;" 
-                   alt="프로필 사진" />
+                   alt="프로필 사진" 
+                   crossorigin="anonymous" />
             ` : `
               <div style="
                 text-align: center;
@@ -774,6 +844,8 @@ const createResumeHTML = (data: PortfolioData): string => {
 // PDF 생성 및 다운로드 함수
 export const generatePortfolioPDF = async (portfolioId: string): Promise<void> => {
   try {
+    console.log('📝 PDF 생성 시작...');
+    
     // 포트폴리오 데이터 가져오기
     const API_BASE_URL = process.env.NODE_ENV === 'production' 
       ? 'https://sanhak-backend.onrender.com/api'
@@ -791,27 +863,38 @@ export const generatePortfolioPDF = async (portfolioId: string): Promise<void> =
     }
 
     const portfolioData: PortfolioData = await response.json();
+    console.log('📄 포트폴리오 데이터 로드 완료');
 
-    // HTML 요소 생성
-    const htmlContent = createResumeHTML(portfolioData);
+    // HTML 요소 생성 (비동기 처리)
+    const htmlContent = await createResumeHTML(portfolioData);
+    console.log('🌎 HTML 콘텐츠 생성 완료');
+    
     const tempDiv = document.createElement('div');
     tempDiv.innerHTML = htmlContent;
     tempDiv.style.position = 'absolute';
     tempDiv.style.left = '-9999px';
     tempDiv.style.top = '0';
+    tempDiv.style.background = 'white';
     document.body.appendChild(tempDiv);
 
-    // HTML을 Canvas로 변환
+    console.log('🖼️ 이미지 로딩 대기 중...');
+    // 이미지 로딩 대기
+    await waitForImagesToLoad(tempDiv);
+    console.log('✅ 이미지 로딩 완료');
+
+    console.log('📷 Canvas 변환 시작...');
+    // HTML을 Canvas로 변환 (안전한 옵션만 사용)
     const canvas = await html2canvas(tempDiv, {
       useCORS: true,
-      allowTaint: true,
+      allowTaint: false,
       background: '#ffffff',
       width: 800,
-      height: tempDiv.scrollHeight,
+      height: tempDiv.scrollHeight
     });
-
+    
+    console.log('📝 PDF 변환 시작...');
     // Canvas를 PDF로 변환
-    const imgData = canvas.toDataURL('image/png');
+    const imgData = canvas.toDataURL('image/png', 1.0); // 최고 품질
     const pdf = new jsPDF('p', 'mm', 'a4');
     
     const imgWidth = 210; // A4 width in mm
@@ -834,12 +917,17 @@ export const generatePortfolioPDF = async (portfolioId: string): Promise<void> =
 
     // 임시 요소 제거
     document.body.removeChild(tempDiv);
+    console.log('🧺 임시 요소 정리 완료');
 
     // PDF 다운로드
-    pdf.save(`${portfolioData.profile.name}_이력서_${new Date().toISOString().split('T')[0]}.pdf`);
+    const fileName = `${portfolioData.profile.name}_이력서_${new Date().toISOString().split('T')[0]}.pdf`;
+    pdf.save(fileName);
+    
+    console.log('✅ PDF 생성 완료:', fileName);
+    alert('🎉 PDF가 성공적으로 다운로드되었습니다!');
 
   } catch (error) {
-    console.error('PDF 생성 실패:', error);
-    alert('PDF 생성에 실패했습니다. 다시 시도해주세요.');
+    console.error('❌ PDF 생성 실패:', error);
+    alert('⚠️ PDF 생성에 실패했습니다. 다시 시도해주세요.');
   }
 };
