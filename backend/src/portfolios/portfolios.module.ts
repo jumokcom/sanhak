@@ -1,46 +1,24 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { MulterModule } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
-import { extname, join } from 'path';
-import { existsSync, mkdirSync } from 'fs';
+import { memoryStorage } from 'multer';
 import { PortfoliosService } from './portfolios.service';
 import { PortfoliosController } from './portfolios.controller';
 import { Portfolio } from './entities/portfolio.entity';
+import { CloudinaryModule } from '../cloudinary/cloudinary.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Portfolio]),
+    // Cloudinary를 사용하므로 Multer는 메모리 스토리지로 설정
     MulterModule.register({
-      storage: diskStorage({
-        destination: (req, file, callback) => {
-          const uploadPath = join(__dirname, '..', '..', 'uploads', 'portfolios');
-          // 디렉토리가 없으면 생성
-          if (!existsSync(uploadPath)) {
-            mkdirSync(uploadPath, { recursive: true });
-          }
-          callback(null, uploadPath);
-        },
-        filename: (req, file, callback) => {
-          // 파일명 생성: timestamp_userId_originalname
-          const userId = (req as any).user?.id || 'anonymous';
-          const timestamp = Date.now();
-          const ext = extname(file.originalname);
-          const filename = `${timestamp}_${userId}_portfolio${ext}`;
-          callback(null, filename);
-        },
-      }),
-      fileFilter: (req, file, callback) => {
-        // 이미지 파일만 허용
-        if (!file.mimetype.match(/\/(jpg|jpeg|png|gif|webp)$/)) {
-          return callback(new Error('Only image files are allowed!'), false);
-        }
-        callback(null, true);
-      },
+      storage: memoryStorage(), // 메모리 스토리지 사용
       limits: {
         fileSize: 10 * 1024 * 1024, // 10MB 제한
+        fieldSize: 10 * 1024 * 1024, // 필드 크기 제한
       },
     }),
+    CloudinaryModule,
   ],
   controllers: [PortfoliosController],
   providers: [PortfoliosService],
