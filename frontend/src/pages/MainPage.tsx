@@ -6,6 +6,13 @@ import Footer from "../components/Footer";
 import { MyPortfolio, AllPortfolio } from "../components/portfolio";
 import { portfolioApi } from "../utils/api";
 
+// 로그인 상태 확인 유틸리티 함수
+const checkLoginStatus = () => {
+  const jwtToken = localStorage.getItem("jwt_token");
+  const kakaoToken = window.Kakao?.Auth?.getAccessToken();
+  return !!(jwtToken || kakaoToken);
+};
+
 // 섹션 컨테이너 스타일
 const Section = styled.div`
   height: 100vh;
@@ -65,15 +72,14 @@ const Dot = styled.div<{ active: boolean }>`
   }
 `;
 
-
-
 const MainPage = () => {
   const [activeSection, setActiveSection] = useState(0);
   const [myPortfolios, setMyPortfolios] = useState<any[]>([]);
   const [allPortfolios, setAllPortfolios] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  
+  const [isLoggedIn, setIsLoggedIn] = useState(false); // 로그인 상태 추가
+
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const sectionRefs = [
     useRef<HTMLDivElement>(null),
@@ -83,8 +89,9 @@ const MainPage = () => {
   // Keep-Alive: 10분마다 백엔드 핑 (발표용)
   useEffect(() => {
     const keepAlive = setInterval(() => {
-      fetch('https://sanhak-backend.onrender.com/api/portfolios')
-        .catch(() => console.log('Keep-alive ping'));
+      fetch("https://sanhak-backend.onrender.com/api/portfolios").catch(() =>
+        console.log("Keep-alive ping")
+      );
     }, 10 * 60 * 1000); // 10분
 
     return () => clearInterval(keepAlive);
@@ -95,48 +102,72 @@ const MainPage = () => {
     loadPortfolios();
   }, []);
 
+  // 로그인 상태 확인
+  useEffect(() => {
+    const updateLoginStatus = () => {
+      setIsLoggedIn(checkLoginStatus());
+    };
+
+    // 초기 로그인 상태 확인
+    updateLoginStatus();
+
+    // 로드 완료 후 다시 확인 (로그인 업데이트 반영)
+    if (!loading) {
+      updateLoginStatus();
+    }
+  }, [loading]); // loading 상태 변경 시 로그인 상태 재확인
+
   const loadPortfolios = async () => {
     try {
       setLoading(true);
       setError(null);
-      
-      console.log('포트폴리오 로드 시작...');
+
+      console.log("포트폴리오 로드 시작...");
 
       // 내 포트폴리오와 전체 포트폴리오를 동시에 로드
       const [myData, allData] = await Promise.all([
         portfolioApi.getMyPortfolios().catch((error) => {
-          console.log('내 포트폴리오 로드 실패 (로그인 안된 상태일 수 있음):', error);
+          console.log(
+            "내 포트폴리오 로드 실패 (로그인 안된 상태일 수 있음):",
+            error
+          );
           return [];
         }),
-        portfolioApi.getAllPortfolios()
+        portfolioApi.getAllPortfolios(),
       ]);
 
-      console.log('내 포트폴리오 원본 데이터:', myData);
-      console.log('전체 포트폴리오 원본 데이터:', allData);
+      console.log("내 포트폴리오 원본 데이터:", myData);
+      console.log("전체 포트폴리오 원본 데이터:", allData);
 
       // 데이터 형식 변환 (컴포넌트에서 예상하는 형식으로)
-      const formattedMyPortfolios = Array.isArray(myData) ? myData.map((portfolio: any) => ({
-        id: portfolio.id?.toString() || portfolio.id,
-        title: portfolio.title || '제목 없음',
-        description: portfolio.profile?.introduction || '자기소개가 없습니다.',
-        profileImage: portfolio.profile?.image || '', // 프로필 이미지 추가
-      })) : [];
+      const formattedMyPortfolios = Array.isArray(myData)
+        ? myData.map((portfolio: any) => ({
+            id: portfolio.id?.toString() || portfolio.id,
+            title: portfolio.title || "제목 없음",
+            description:
+              portfolio.profile?.introduction || "자기소개가 없습니다.",
+            profileImage: portfolio.profile?.image || "", // 프로필 이미지 추가
+          }))
+        : [];
 
-      const formattedAllPortfolios = Array.isArray(allData) ? allData.map((portfolio: any) => ({
-        id: portfolio.id?.toString() || portfolio.id,
-        title: portfolio.title || '제목 없음',
-        description: portfolio.profile?.introduction || '자기소개가 없습니다.',
-        profileImage: portfolio.profile?.image || '', // 프로필 이미지 추가
-      })) : [];
-      
-      console.log('변환된 내 포트폴리오:', formattedMyPortfolios);
-      console.log('변환된 전체 포트폴리오:', formattedAllPortfolios);
+      const formattedAllPortfolios = Array.isArray(allData)
+        ? allData.map((portfolio: any) => ({
+            id: portfolio.id?.toString() || portfolio.id,
+            title: portfolio.title || "제목 없음",
+            description:
+              portfolio.profile?.introduction || "자기소개가 없습니다.",
+            profileImage: portfolio.profile?.image || "", // 프로필 이미지 추가
+          }))
+        : [];
+
+      console.log("변환된 내 포트폴리오:", formattedMyPortfolios);
+      console.log("변환된 전체 포트폴리오:", formattedAllPortfolios);
 
       setMyPortfolios(formattedMyPortfolios);
       setAllPortfolios(formattedAllPortfolios);
     } catch (error) {
-      console.error('포트폴리오 로드 실패:', error);
-      setError('포트폴리오를 불러오는데 실패했습니다.');
+      console.error("포트폴리오 로드 실패:", error);
+      setError("포트폴리오를 불러오는데 실패했습니다.");
     } finally {
       setLoading(false);
     }
@@ -190,25 +221,29 @@ const MainPage = () => {
           <Header />
           <CenteredContentArea>
             {loading ? (
-              <div style={{ 
-                display: 'flex', 
-                justifyContent: 'center', 
-                alignItems: 'center', 
-                height: '200px',
-                fontSize: '1.2rem',
-                color: '#666'
-              }}>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  height: "200px",
+                  fontSize: "1.2rem",
+                  color: "#666",
+                }}
+              >
                 포트폴리오를 불러오는 중...
               </div>
             ) : error ? (
-              <div style={{ 
-                display: 'flex', 
-                justifyContent: 'center', 
-                alignItems: 'center', 
-                height: '200px',
-                fontSize: '1.2rem',
-                color: '#e53e3e'
-              }}>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  height: "200px",
+                  fontSize: "1.2rem",
+                  color: "#e53e3e",
+                }}
+              >
                 {error}
               </div>
             ) : (
@@ -221,18 +256,20 @@ const MainPage = () => {
         <Section ref={sectionRefs[1]}>
           <ContentArea>
             {loading ? (
-              <div style={{ 
-                display: 'flex', 
-                justifyContent: 'center', 
-                alignItems: 'center', 
-                height: '200px',
-                fontSize: '1.2rem',
-                color: '#666'
-              }}>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  height: "200px",
+                  fontSize: "1.2rem",
+                  color: "#666",
+                }}
+              >
                 포트폴리오를 불러오는 중...
               </div>
             ) : (
-              <AllPortfolio portfolios={allPortfolios} itemsPerPage={10} />
+              <AllPortfolio portfolios={allPortfolios} itemsPerPage={10} isLoggedIn={isLoggedIn} />
             )}
           </ContentArea>
           <Footer />

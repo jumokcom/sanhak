@@ -224,6 +224,61 @@ const EmptySubMessage = styled.p`
   line-height: 1.5;
 `;
 
+// 로그인 유도 컴포넌트
+const LoginPromptContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 400px;
+  text-align: center;
+  gap: 25px;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+  border-radius: 20px;
+  padding: 40px;
+  border: 2px dashed rgba(102, 126, 234, 0.3);
+`;
+
+const LoginPromptIcon = styled.div`
+  width: 100px;
+  height: 100px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+  animation: float 3s ease-in-out infinite;
+  
+  @keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+  }
+  
+  svg {
+    width: 50px;
+    height: 50px;
+    color: white;
+  }
+`;
+
+const LoginPromptTitle = styled.h3`
+  font-size: 2rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 10px;
+`;
+
+const LoginPromptMessage = styled.p`
+  font-size: 1.1rem;
+  color: #64748b;
+  line-height: 1.6;
+  max-width: 400px;
+`;
+
 // 페이지네이션 컨테이너
 const PaginationContainer = styled.div`
   display: flex;
@@ -255,11 +310,13 @@ interface Portfolio {
 interface AllPortfolioProps {
   portfolios: Portfolio[];
   itemsPerPage?: number;
+  isLoggedIn?: boolean; // 로그인 상태 prop 추가
 }
 
 const AllPortfolio: React.FC<AllPortfolioProps> = ({
   portfolios,
   itemsPerPage = 10, // 기본 5x2 = 10개
+  isLoggedIn = false, // 기본값 false
 }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [portfolioList, setPortfolioList] = useState<Portfolio[]>(portfolios);
@@ -338,7 +395,18 @@ const AllPortfolio: React.FC<AllPortfolioProps> = ({
           </SubTitle>
         </HeaderSection>
         
-        {portfolioList.length === 0 ? (
+        {/* 로그인하지 않은 사용자에게 로그인 유도 메시지 표시 */}
+        {!isLoggedIn ? (
+          <LoginPromptContainer>
+            <div>
+              <LoginPromptTitle>로그인이 필요합니다</LoginPromptTitle>
+              <LoginPromptMessage>
+                전체 포트폴리오를 살펴보려면 로그인이 필요합니다.<br/>
+                카카오 로그인으로 간편하게 시작해보세요!
+              </LoginPromptMessage>
+            </div>
+          </LoginPromptContainer>
+        ) : portfolioList.length === 0 ? (
           <GridContainer>
             <EmptyStateContainer>
               <EmptyIcon>
@@ -372,7 +440,7 @@ const AllPortfolio: React.FC<AllPortfolioProps> = ({
           </GridContainer>
         )}
 
-        {totalPages > 1 && (
+        {totalPages > 1 && isLoggedIn && (
           <PaginationContainer>
             <Pagination
               currentPage={currentPage}
