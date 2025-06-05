@@ -415,15 +415,30 @@ const Header = () => {
         if (success) {
           console.log("백엔드 로그인 성공");
           fetchUserInfo(); // 사용자 정보 가져오기
+          
+          // 로그인 성공 후 1초 뒤에 페이지 새로고침
+          setTimeout(() => {
+            window.location.reload();
+          }, 1000);
         } else {
           // 백엔드 로그인 실패 시 카카오 정보만 사용
           fetchUserInfo();
+          
+          // 카카오 정보만으로도 로그인 처리된 경우 1초 뒤 새로고침
+          setTimeout(() => {
+            window.location.reload();
+          }, 1000);
         }
       }
     } catch (error) {
       console.error("로그인 처리 중 오류:", error);
       setUserName("사용자");
       setIsLogin(true);
+      
+      // 오류가 있어도 로그인 상태가 변경되었으면 1초 뒤 새로고침
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
     }
   };
 
