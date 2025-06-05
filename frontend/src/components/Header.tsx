@@ -458,13 +458,28 @@ const Header = () => {
         window.Kakao.Auth.logout(() => {
           console.log("카카오 로그아웃 완료");
           resetUserState();
+          
+          // 로그아웃 후 1초 뒤에 페이지 새로고침
+          setTimeout(() => {
+            window.location.reload();
+          }, 1000);
         });
       } else {
         resetUserState();
+        
+        // 로그아웃 후 1초 뒤에 페이지 새로고침
+        setTimeout(() => {
+          window.location.reload();
+        }, 1000);
       }
     } catch (error) {
       console.error("로그아웃 처리 중 오류:", error);
       resetUserState();
+      
+      // 오류가 있어도 로그아웃 처리 후 1초 뒤 새로고침
+      setTimeout(() => {
+        window.location.reload();
+      }, 1000);
     }
   };
 
